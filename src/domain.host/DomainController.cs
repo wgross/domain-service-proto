@@ -1,6 +1,6 @@
 ﻿using domain.contract;
+using domain.host;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 
 namespace host
@@ -16,29 +16,7 @@ namespace host
         }
 
         [HttpPost]
-        public async Task<IActionResult> DoSomething([FromBody] DoSomethingRequest request)
-        {
-            try
-            {
-                return this.Ok(await this.domainService.DoSomething(request));
-            }
-            catch (ArgumentNullException ex)
-            {
-                return this.BadRequest(new DomainError
-                {
-                    ErrorType = nameof(ArgumentNullException),
-                    ParamName = ex.ParamName,
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                return this.BadRequest(new DomainError
-                {
-                    ErrorType = ex.GetType().Name,
-                    Message = ex.Message
-                });
-            }
-        }
+        public Task<IActionResult> DoSomething([FromBody] DoSomethingRequest request)
+            => this.InvokeServiceCommand(() => this.domainService.DoSomething(request));
     }
 }
