@@ -1,4 +1,5 @@
 ﻿using domain.contract;
+using System;
 using System.Threading.Tasks;
 
 namespace domain.service
@@ -7,6 +8,9 @@ namespace domain.service
     {
         public Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
         {
+            if (rq is null)
+                throw new ArgumentNullException(nameof(rq));
+
             return Task.FromResult(new DoSomethingResult());
         }
     }

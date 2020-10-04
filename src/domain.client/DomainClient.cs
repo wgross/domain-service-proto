@@ -1,4 +1,5 @@
 ﻿using domain.contract;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -15,6 +16,9 @@ namespace domain.client
 
         public async Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
         {
+            if (rq is null)
+                throw new ArgumentNullException(nameof(rq));
+
             var response = await this.httpClient.PostAsJsonAsync("/domain", rq);
             //if (response.IsSuccessStatusCode)
             return await response.Content.ReadAsAsync<domain.contract.DoSomethingResult>();

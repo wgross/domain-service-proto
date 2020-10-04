@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace domain.contract.test
@@ -7,7 +8,6 @@ namespace domain.contract.test
     {
         protected IDomainService Contract { get; set; }
 
-        
         [Fact]
         public async Task DomainService_does_something()
         {
@@ -18,6 +18,18 @@ namespace domain.contract.test
             // ASSERT
 
             Assert.IsType<domain.contract.DoSomethingResult>(result);
+        }
+
+        [Fact]
+        public async Task Domains_service_doing_someting_fails_on_missing_body()
+        {
+            // ACT
+
+            var result = await Assert.ThrowsAsync<ArgumentNullException>(() => this.Contract.DoSomething(null));
+
+            // ASSERT
+
+            Assert.Equal("rq", result.ParamName);
         }
     }
 }
