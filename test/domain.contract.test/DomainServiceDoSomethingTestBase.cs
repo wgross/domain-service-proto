@@ -13,7 +13,10 @@ namespace domain.contract.test
         {
             // ACT
 
-            var result = await this.Contract.DoSomething(new domain.contract.DoSomethingRequest());
+            var result = await this.Contract.DoSomething(new domain.contract.DoSomethingRequest
+            {
+                Data = "data"
+            });
 
             // ASSERT
 
@@ -21,7 +24,7 @@ namespace domain.contract.test
         }
 
         [Fact]
-        public async Task Domains_service_doing_someting_fails_on_missing_body()
+        public async Task DomainService_doing_someting_fails_on_missing_body()
         {
             // ACT
 
@@ -30,6 +33,21 @@ namespace domain.contract.test
             // ASSERT
 
             Assert.Equal("rq", result.ParamName);
+        }
+
+        [Fact]
+        public async Task DomainService_doing_something_fails_on_bad_input()
+        {
+            // ACT
+
+            var result = await Assert.ThrowsAsync<InvalidOperationException>(() => this.Contract.DoSomething(new DoSomethingRequest
+            {
+                Data = null
+            }));
+
+            // ASSERT
+
+            Assert.Equal("Data is required", result.Message);
         }
     }
 }

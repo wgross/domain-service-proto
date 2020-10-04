@@ -11,6 +11,9 @@ namespace domain.service
             if (rq is null)
                 throw new ArgumentNullException(nameof(rq));
 
+            if (rq.Data is null)
+                throw new InvalidOperationException("Data is required");
+
             return Task.FromResult(new DoSomethingResult());
         }
     }

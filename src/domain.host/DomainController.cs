@@ -1,5 +1,6 @@
 ﻿using domain.contract;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace host
@@ -15,6 +16,19 @@ namespace host
         }
 
         [HttpPost]
-        public async Task<IActionResult> DoSomething([FromBody] DoSomethingRequest request) => this.Ok(await this.domainService.DoSomething(request));
+        public async Task<IActionResult> DoSomething([FromBody] DoSomethingRequest request)
+        {
+            try
+            {
+                return this.Ok(await this.domainService.DoSomething(request));
+            }
+            catch (Exception ex)
+            {
+                return this.BadRequest(new DomainError
+                {
+                    Reason = ex.Message
+                });
+            }
+        }
     }
 }

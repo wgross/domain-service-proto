@@ -20,8 +20,11 @@ namespace domain.client
                 throw new ArgumentNullException(nameof(rq));
 
             var response = await this.httpClient.PostAsJsonAsync("/domain", rq);
-            //if (response.IsSuccessStatusCode)
-            return await response.Content.ReadAsAsync<domain.contract.DoSomethingResult>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadAsAsync<domain.contract.DoSomethingResult>();
+            else throw OnError(await response.Content.ReadAsAsync<DomainError>());
         }
+
+        private Exception OnError(DomainError errorResponse) => new InvalidOperationException(errorResponse.Reason);
     }
 }
