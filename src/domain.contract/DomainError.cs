@@ -2,6 +2,10 @@
 {
     public class DomainError
     {
-        public string Reason { get; set; }
+        public string ErrorType { get; set; }
+
+        public string Message { get; set; }
+
+        public string ParamName { get; set; }
     }
 }

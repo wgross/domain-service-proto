@@ -16,15 +16,19 @@ namespace domain.client
 
         public async Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
         {
-            if (rq is null)
-                throw new ArgumentNullException(nameof(rq));
-
             var response = await this.httpClient.PostAsJsonAsync("/domain", rq);
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadAsAsync<domain.contract.DoSomethingResult>();
             else throw OnError(await response.Content.ReadAsAsync<DomainError>());
         }
 
-        private Exception OnError(DomainError errorResponse) => new InvalidOperationException(errorResponse.Reason);
+        private Exception OnError(DomainError errorResponse)
+        {
+            return errorResponse.ErrorType switch
+            {
+                nameof(ArgumentNullException) => new ArgumentNullException(errorResponse.ParamName, errorResponse.Message),
+                _ => new InvalidOperationException(errorResponse.Message)
+            };
+        }
     }
 }

@@ -22,11 +22,21 @@ namespace host
             {
                 return this.Ok(await this.domainService.DoSomething(request));
             }
+            catch (ArgumentNullException ex)
+            {
+                return this.BadRequest(new DomainError
+                {
+                    ErrorType = nameof(ArgumentNullException),
+                    ParamName = ex.ParamName,
+                    Message = ex.Message
+                });
+            }
             catch (Exception ex)
             {
                 return this.BadRequest(new DomainError
                 {
-                    Reason = ex.Message
+                    ErrorType = ex.GetType().Name,
+                    Message = ex.Message
                 });
             }
         }
