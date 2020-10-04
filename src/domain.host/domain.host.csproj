@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\domain.model\domain.model.csproj" />
+    <ProjectReference Include="..\domain.persistence\domain.persistence.csproj" />
     <ProjectReference Include="..\domain.service\domain.service.csproj" />
   </ItemGroup>
 

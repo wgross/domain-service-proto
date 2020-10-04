@@ -3,7 +3,7 @@ using domain.host;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace host
+namespace domain.host.controllers
 {
     [Route("domain")]
     public sealed class DomainController : ControllerBase
