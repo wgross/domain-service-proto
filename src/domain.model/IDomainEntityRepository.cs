@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace domain.model
 {
     public interface IDomainEntityRepository
     {
-        void Add(DomainEntity domainEntity);
+        Task Add(DomainEntity domainEntity);
     }
 }

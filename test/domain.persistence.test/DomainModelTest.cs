@@ -1,19 +1,36 @@
 using domain.model;
+using domain.persistence.EF;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 
 namespace domain.persistence.test
 {
     public class DomainModelTest
     {
-        private readonly DomainModel model;
+        private readonly string connectionString;
+        private readonly ServiceProvider serviceProvider;
 
         public DomainModelTest()
         {
-            this.model = new DomainModel();
+            string createConnectionString(Guid instanceId, string path) => $@"Data Source={path}\DomainDatabaseTest.{instanceId}.db";
+
+            this.connectionString = createConnectionString(
+                instanceId: Guid.NewGuid(),
+                path: Path.GetDirectoryName(typeof(DomainModelTest).GetTypeInfo().Assembly.Location));
+
+            this.serviceProvider = new ServiceCollection()
+                .AddDbContext<DomainDbContext>(opts => opts.UseSqlite(this.connectionString))
+                .AddTransient<IDomainModel, DomainModel>()
+                .BuildServiceProvider();
         }
+
+        private IDomainModel NewModel() => this.serviceProvider.GetRequiredService<IDomainModel>();
 
         public class Observer : IObserver<DomainEvent>
         {
@@ -35,14 +52,17 @@ namespace domain.persistence.test
         {
             // ARRANGE
 
+            using var model = NewModel();
+
             var observer = new Observer();
-            using var subscription = this.model.DomainEvents.Subscribe(observer);
+
+            using var subscription = model.DomainEvents.Subscribe(observer);
 
             var entity = new DomainEntity();
 
             // ACT
 
-            this.model.Entities.Add(entity);
+            model.Entities.Add(entity);
 
             // ASSERT
 

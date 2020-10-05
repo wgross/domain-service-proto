@@ -2,7 +2,7 @@
 
 namespace domain.model
 {
-    public interface IDomainModel
+    public interface IDomainModel : IDisposable
     {
         IDomainEntityRepository Entities { get; }
 

@@ -1,4 +1,5 @@
 ﻿using domain.model;
+using System.Threading.Tasks;
 
 namespace domain.persistence
 {
@@ -11,8 +12,9 @@ namespace domain.persistence
             this.model = model;
         }
 
-        public void Add(DomainEntity domainEntity)
+        public async Task Add(DomainEntity domainEntity)
         {
+            await this.model.DbContext.DomainEntities.AddAsync(domainEntity);
             this.model.Added(domainEntity);
         }
     }
