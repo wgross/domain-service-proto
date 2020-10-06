@@ -14,11 +14,7 @@ namespace domain.persistence
             this.model = model;
         }
 
-        public async Task Add(DomainEntity domainEntity)
-        {
-            await this.model.DbContext.DomainEntities.AddAsync(domainEntity);
-            this.model.Added(domainEntity);
-        }
+        public async Task Add(DomainEntity domainEntity) => await this.model.DbContext.DomainEntities.AddAsync(domainEntity);
 
         public void Delete(DomainEntity actEntity) => this.model.DbContext.DomainEntities.Remove(actEntity);
 

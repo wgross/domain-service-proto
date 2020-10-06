@@ -1,8 +1,16 @@
 ﻿namespace domain.model
 {
+    public enum DomainEventValues
+    {
+        Added,
+        Modified,
+        Deleted
+    }
+
     public class DomainEvent
     {
-        public string Event { get; set; }
+        public DomainEventValues Event { get; set; }
+
         public DomainEntity Data { get; set; }
     }
 }
