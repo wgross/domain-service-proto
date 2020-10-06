@@ -1,4 +1,6 @@
 ﻿using domain.model;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace domain.persistence
@@ -17,5 +19,11 @@ namespace domain.persistence
             await this.model.DbContext.DomainEntities.AddAsync(domainEntity);
             this.model.Added(domainEntity);
         }
+
+        public void Delete(DomainEntity actEntity) => this.model.DbContext.DomainEntities.Remove(actEntity);
+
+        public ValueTask<DomainEntity> FindById(Guid id) => this.model.DbContext.DomainEntities.FindAsync(id);
+
+        public IQueryable<DomainEntity> Query() => this.model.DbContext.DomainEntities.AsQueryable();
     }
 }

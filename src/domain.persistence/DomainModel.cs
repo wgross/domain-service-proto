@@ -1,5 +1,6 @@
 ﻿using domain.model;
 using domain.persistence.EF;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -20,6 +21,8 @@ namespace domain.persistence
         public IDomainEntityRepository Entities => new DomainEntityRepository(this);
 
         public IObservable<DomainEvent> DomainEvents => domainEvents;
+
+        public DatabaseFacade Database => this.DbContext.Database;
 
         public Task<int> SaveChanges() => this.DbContext.SaveChangesAsync();
 
