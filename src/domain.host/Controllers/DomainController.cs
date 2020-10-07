@@ -1,5 +1,4 @@
 ﻿using domain.contract;
-using domain.host;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -15,7 +14,7 @@ namespace domain.host.controllers
             this.domainService = domainService;
         }
 
-        [HttpPost]
+        [HttpPost("do")]
         public Task<IActionResult> DoSomething([FromBody] DoSomethingRequest request)
             => this.InvokeServiceCommand(() => this.domainService.DoSomething(request));
     }

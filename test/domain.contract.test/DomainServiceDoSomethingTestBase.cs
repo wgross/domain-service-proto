@@ -8,8 +8,7 @@ namespace domain.contract.test
     {
         protected IDomainService Contract { get; set; }
 
-        [Fact]
-        public async Task DomainService_does_something()
+        protected async Task DomainService_does_something_Act()
         {
             // ACT
 
@@ -23,8 +22,7 @@ namespace domain.contract.test
             Assert.IsType<domain.contract.DoSomethingResult>(result);
         }
 
-        [Fact]
-        public async Task DomainService_doing_someting_fails_on_missing_body()
+        protected async Task DomainService_doing_someting_fails_on_missing_body_Act()
         {
             // ACT
 
@@ -35,8 +33,7 @@ namespace domain.contract.test
             Assert.Equal("rq", result.ParamName);
         }
 
-        [Fact]
-        public async Task DomainService_doing_something_fails_on_bad_input()
+        protected async Task DomainService_doing_something_fails_on_bad_input_Act()
         {
             // ACT
 
@@ -48,6 +45,33 @@ namespace domain.contract.test
             // ASSERT
 
             Assert.Equal("Data is required", result.Message);
+        }
+
+        protected async Task DomainService_creates_entity_Act()
+        {
+            // ACT
+
+            var result = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            {
+                Text = "test"
+            });
+
+            // ASSERT
+
+            Assert.Equal("test", result.Text);
+            Assert.NotEqual(Guid.Empty, result.Id);
+        }
+
+        protected async Task DomainService_reads_entity_by_id_Act(Guid id)
+        {
+            // ACT
+
+            var result = await this.Contract.GetEntity(id);
+
+            // ASSERT
+
+            Assert.Equal("test", result.Text);
+            Assert.Equal(id, result.Id);
         }
     }
 }

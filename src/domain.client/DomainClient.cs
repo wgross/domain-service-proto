@@ -14,12 +14,22 @@ namespace domain.client
             this.httpClient = client;
         }
 
+        public Task<CreateDomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
         {
-            var response = await this.httpClient.PostAsJsonAsync("/domain", rq);
+            var response = await this.httpClient.PostAsJsonAsync("/domain/do", rq);
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadAsAsync<domain.contract.DoSomethingResult>();
             else throw OnError(await response.Content.ReadAsAsync<DomainError>());
+        }
+
+        public Task<CreateDomainEntityResult> GetEntity(Guid id)
+        {
+            throw new NotImplementedException();
         }
 
         private Exception OnError(DomainError errorResponse)

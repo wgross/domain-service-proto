@@ -1,4 +1,5 @@
 ﻿using domain.contract;
+using domain.model;
 using System;
 using System.Threading.Tasks;
 
@@ -6,6 +7,21 @@ namespace domain.service
 {
     public class DomainService : IDomainService
     {
+        private readonly IDomainModel model;
+
+        public DomainService(IDomainModel model)
+        {
+            this.model = model;
+        }
+
+        public async Task<CreateDomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
+        {
+            var entity = createDomainEntity.MapToDomain();
+            await this.model.Entities.Add(entity);
+            await this.model.SaveChanges();
+            return entity.MapToResponse();
+        }
+
         public Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
         {
             if (rq is null)
@@ -15,6 +31,12 @@ namespace domain.service
                 throw new InvalidOperationException("Data is required");
 
             return Task.FromResult(new DoSomethingResult());
+        }
+
+        public async Task<CreateDomainEntityResult> GetEntity(Guid id)
+        {
+            var entity = await this.model.Entities.FindById(id);
+            return entity.MapToResponse();
         }
     }
 }
