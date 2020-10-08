@@ -42,7 +42,7 @@ namespace domain.service
 
         public Task<DomainEntityCollectionResult> GetEntities()
         {
-            return Task.FromResult(this.model.Entities.Query().MapToResponse());
+            return this.model.Entities.Query().MapToResponse();
         }
 
         public async Task<DomainEntityResult> GetEntity(Guid id)

@@ -1,6 +1,6 @@
 ﻿using domain.model;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace domain.persistence
@@ -20,6 +20,6 @@ namespace domain.persistence
 
         public ValueTask<DomainEntity> FindById(Guid id) => this.model.DbContext.DomainEntities.FindAsync(id);
 
-        public IQueryable<DomainEntity> Query() => this.model.DbContext.DomainEntities.AsQueryable();
+        public IAsyncEnumerable<DomainEntity> Query() => this.model.DbContext.DomainEntities.AsAsyncEnumerable();
     }
 }

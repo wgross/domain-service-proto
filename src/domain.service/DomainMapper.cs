@@ -1,6 +1,8 @@
 ﻿using domain.contract;
 using domain.model;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace domain.service
 {
@@ -17,11 +19,11 @@ namespace domain.service
             Text = entity.Text
         };
 
-        public static DomainEntityCollectionResult MapToResponse(this IQueryable<DomainEntity> collection)
+        public async static Task<DomainEntityCollectionResult> MapToResponse(this IAsyncEnumerable<DomainEntity> collection)
         {
             return new DomainEntityCollectionResult
             {
-                Entities = collection.Select(e => e.MapToResponse()).ToArray()
+                Entities = await collection.Select(e => e.MapToResponse()).ToArrayAsync()
             };
         }
     }

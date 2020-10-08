@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="System.Linq.Async" Version="4.1.1" />
+    <PackageReference Include="System.Reactive.Linq" Version="4.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\domain.contract\domain.contract.csproj" />
     <ProjectReference Include="..\domain.model\domain.model.csproj" />
   </ItemGroup>

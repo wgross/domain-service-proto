@@ -127,7 +127,7 @@ namespace domain.persistence.test
 
             using var actModel = NewModel();
 
-            var result = actModel.Entities.Query().ToList();
+            var result = await actModel.Entities.Query().ToArrayAsync();
 
             // ASSERT
 

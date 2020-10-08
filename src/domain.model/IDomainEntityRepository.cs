@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace domain.model
@@ -8,7 +8,7 @@ namespace domain.model
     {
         Task Add(DomainEntity domainEntity);
 
-        IQueryable<DomainEntity> Query();
+        IAsyncEnumerable<DomainEntity> Query();
 
         ValueTask<DomainEntity> FindById(Guid id);
 

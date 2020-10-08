@@ -1,6 +1,5 @@
 using domain.contract.test;
 using domain.model;
-using MockQueryable.Moq;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -88,7 +87,7 @@ namespace domain.service.test
 
             this.DomainEntityRepositoryMock
                 .Setup(r => r.Query())
-                .Returns(entities.AsQueryable());
+                .Returns(entities.ToAsyncEnumerable());
 
             this.DomainModelMock
                 .Setup(m => m.Entities)
