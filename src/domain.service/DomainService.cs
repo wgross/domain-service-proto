@@ -22,6 +22,13 @@ namespace domain.service
             return entity.MapToResponse();
         }
 
+        public async Task DeleteEntity(Guid entityId)
+        {
+            var entity = await this.model.Entities.FindById(entityId);
+            this.model.Entities.Delete(entity);
+            await this.model.SaveChanges();
+        }
+
         public Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
         {
             if (rq is null)

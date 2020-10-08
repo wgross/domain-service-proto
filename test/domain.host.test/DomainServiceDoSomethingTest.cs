@@ -17,15 +17,15 @@ namespace host.test
         }
 
         [Fact]
-        public Task DomainService_does_something() => base.DomainService_does_something_Act();
+        public Task DomainService_does_something() => base.ACT_DomainService_does_something();
 
         [Fact]
-        public Task DomainService_doing_someting_fails_on_missing_body() => base.DomainService_doing_someting_fails_on_missing_body_Act();
+        public Task DomainService_doing_someting_fails_on_missing_body() => base.ACT_DomainService_doing_someting_fails_on_missing_body();
 
         [Fact]
-        public Task DomainService_doing_something_fails_on_bad_input() => base.DomainService_doing_something_fails_on_bad_input_Act();
+        public Task DomainService_doing_something_fails_on_bad_input() => base.ACT_DomainService_doing_something_fails_on_bad_input();
 
         [Fact]
-        public async Task DomainService_creates_entity() => base.DomainService_creates_entity_Act();
+        public async Task DomainService_creates_entity() => base.ACT_DomainService_creates_entity();
     }
 }

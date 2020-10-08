@@ -10,5 +10,7 @@ namespace domain.contract
         Task<CreateDomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity);
         
         Task<CreateDomainEntityResult> GetEntity(Guid id);
+        
+        Task DeleteEntity(Guid entityId);
     }
 }

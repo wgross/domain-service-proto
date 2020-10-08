@@ -29,13 +29,13 @@ namespace domain.service.test
 #pragma warning restore CA1063 // Implement IDisposable Correctly
 
         [Fact]
-        public Task DomainService_does_something() => base.DomainService_does_something_Act();
+        public Task DomainService_does_something() => base.ACT_DomainService_does_something();
 
         [Fact]
-        public Task DomainService_doing_someting_fails_on_missing_body() => base.DomainService_doing_someting_fails_on_missing_body_Act();
+        public Task DomainService_doing_someting_fails_on_missing_body() => base.ACT_DomainService_doing_someting_fails_on_missing_body();
 
         [Fact]
-        public Task DomainService_doing_something_fails_on_bad_input() => base.DomainService_doing_something_fails_on_bad_input_Act();
+        public Task DomainService_doing_something_fails_on_bad_input() => base.ACT_DomainService_doing_something_fails_on_bad_input();
 
         [Fact]
         public async Task DomainService_creates_entity()
@@ -57,7 +57,7 @@ namespace domain.service.test
 
             // ACT
 
-            await base.DomainService_creates_entity_Act();
+            await base.ACT_DomainService_creates_entity();
         }
 
         [Fact]
@@ -65,15 +65,9 @@ namespace domain.service.test
         {
             // ARRANGE
 
-            var entity = new DomainEntity
-            {
-                Id = Guid.NewGuid(),
-                Text = "test"
-            };
+            var entity = ArrangeDomainEntity();
 
-            this.DomainEntityRepositoryMock
-                .Setup(r => r.FindById(entity.Id))
-                .ReturnsAsync(entity);
+            this.ArrangeFindEntityById(entity);
 
             this.DomainModelMock
                 .Setup(m => m.Entities)
@@ -81,7 +75,52 @@ namespace domain.service.test
 
             // ACT
 
-            await base.DomainService_reads_entity_by_id_Act(entity.Id);
+            await base.ACT_DomainService_reads_entity_by_id(entity.Id);
         }
+
+        [Fact]
+        public async Task DomainService_deletes_entity_by_id()
+        {
+            // ARRANGE
+
+            var entity = ArrangeDomainEntity();
+
+            this.ArrangeFindEntityById(entity);
+
+            this.DomainModelMock
+                .Setup(m => m.Entities)
+                .Returns(this.DomainEntityRepositoryMock.Object);
+
+            this.DomainEntityRepositoryMock
+                .Setup(r => r.Delete(entity));
+
+            this.DomainModelMock
+                .Setup(m => m.SaveChanges())
+                .ReturnsAsync(1);
+
+            // ACT
+
+            await base.ACT_DomainService_deletes_entity_by_id(entity.Id);
+        }
+
+        #region Arrangements
+
+        private void ArrangeFindEntityById(DomainEntity entity)
+        {
+            this.DomainEntityRepositoryMock
+                .Setup(r => r.FindById(entity.Id))
+                .ReturnsAsync(entity);
+        }
+
+        private static DomainEntity ArrangeDomainEntity()
+        {
+            return new DomainEntity
+            {
+                Id = Guid.NewGuid(),
+                Text = "test"
+            };
+        }
+
+        #endregion Arrangements
     }
 }

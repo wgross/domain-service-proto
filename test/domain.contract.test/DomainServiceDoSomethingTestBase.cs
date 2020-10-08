@@ -1,4 +1,5 @@
-﻿using System;
+﻿using domain.model;
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace domain.contract.test
     {
         protected IDomainService Contract { get; set; }
 
-        protected async Task DomainService_does_something_Act()
+        protected async Task ACT_DomainService_does_something()
         {
             // ACT
 
@@ -22,7 +23,7 @@ namespace domain.contract.test
             Assert.IsType<domain.contract.DoSomethingResult>(result);
         }
 
-        protected async Task DomainService_doing_someting_fails_on_missing_body_Act()
+        protected async Task ACT_DomainService_doing_someting_fails_on_missing_body()
         {
             // ACT
 
@@ -33,7 +34,7 @@ namespace domain.contract.test
             Assert.Equal("rq", result.ParamName);
         }
 
-        protected async Task DomainService_doing_something_fails_on_bad_input_Act()
+        protected async Task ACT_DomainService_doing_something_fails_on_bad_input()
         {
             // ACT
 
@@ -47,7 +48,7 @@ namespace domain.contract.test
             Assert.Equal("Data is required", result.Message);
         }
 
-        protected async Task DomainService_creates_entity_Act()
+        protected async Task ACT_DomainService_creates_entity()
         {
             // ACT
 
@@ -62,7 +63,7 @@ namespace domain.contract.test
             Assert.NotEqual(Guid.Empty, result.Id);
         }
 
-        protected async Task DomainService_reads_entity_by_id_Act(Guid id)
+        protected async Task ACT_DomainService_reads_entity_by_id(Guid id)
         {
             // ACT
 
@@ -72,6 +73,13 @@ namespace domain.contract.test
 
             Assert.Equal("test", result.Text);
             Assert.Equal(id, result.Id);
+        }
+
+        public async Task ACT_DomainService_deletes_entity_by_id(Guid entityId)
+        {
+            // ACT
+
+            await this.Contract.DeleteEntity(entityId);
         }
     }
 }

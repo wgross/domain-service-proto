@@ -19,6 +19,11 @@ namespace domain.client
             throw new NotImplementedException();
         }
 
+        public Task DeleteEntity(Guid entityId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
         {
             var response = await this.httpClient.PostAsJsonAsync("/domain/do", rq);

@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\domain.contract\domain.contract.csproj" />
+    <ProjectReference Include="..\..\src\domain.model\domain.model.csproj" />
   </ItemGroup>
 
 </Project>
