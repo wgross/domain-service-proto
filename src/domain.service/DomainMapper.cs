@@ -1,5 +1,6 @@
 ﻿using domain.contract;
 using domain.model;
+using System.Linq;
 
 namespace domain.service
 {
@@ -10,10 +11,18 @@ namespace domain.service
             Text = rq.Text
         };
 
-        public static CreateDomainEntityResult MapToResponse(this DomainEntity entity) => new CreateDomainEntityResult
+        public static DomainEntityResult MapToResponse(this DomainEntity entity) => new DomainEntityResult
         {
             Id = entity.Id,
             Text = entity.Text
         };
+
+        public static DomainEntityCollectionResult MapToResponse(this IQueryable<DomainEntity> collection)
+        {
+            return new DomainEntityCollectionResult
+            {
+                Entities = collection.Select(e => e.MapToResponse()).ToArray()
+            };
+        }
     }
 }

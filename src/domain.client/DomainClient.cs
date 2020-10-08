@@ -14,7 +14,7 @@ namespace domain.client
             this.httpClient = client;
         }
 
-        public Task<CreateDomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
+        public Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
         {
             throw new NotImplementedException();
         }
@@ -32,7 +32,12 @@ namespace domain.client
             else throw OnError(await response.Content.ReadAsAsync<DomainError>());
         }
 
-        public Task<CreateDomainEntityResult> GetEntity(Guid id)
+        public Task<DomainEntityCollectionResult> GetEntities()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DomainEntityResult> GetEntity(Guid id)
         {
             throw new NotImplementedException();
         }

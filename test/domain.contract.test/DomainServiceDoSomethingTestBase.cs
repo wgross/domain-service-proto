@@ -1,5 +1,6 @@
 ﻿using domain.model;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -80,6 +81,19 @@ namespace domain.contract.test
             // ACT
 
             await this.Contract.DeleteEntity(entityId);
+        }
+
+        public async Task ACT_DomainService_reads_entities(DomainEntity entity)
+        {
+            // ACT
+
+            var result = await this.Contract.GetEntities();
+
+            // ASSERT
+
+            Assert.Single(result.Entities);
+            Assert.Equal(entity.Id, result.Entities.Single().Id);
+            Assert.Equal(entity.Text, result.Entities.Single().Text);
         }
     }
 }

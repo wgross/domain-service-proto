@@ -2,7 +2,7 @@
 
 namespace domain.contract
 {
-    public sealed class CreateDomainEntityResult
+    public sealed class DomainEntityResult
     {
         public Guid Id { get; set; }
 

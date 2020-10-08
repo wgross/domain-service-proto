@@ -1,7 +1,10 @@
 using domain.contract.test;
 using domain.model;
+using MockQueryable.Moq;
 using Moq;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -76,6 +79,24 @@ namespace domain.service.test
             // ACT
 
             await base.ACT_DomainService_reads_entity_by_id(entity.Id);
+        }
+
+        [Fact]
+        public async Task DomainService_reads_entities()
+        {
+            var entities = new List<DomainEntity> { ArrangeDomainEntity() };
+
+            this.DomainEntityRepositoryMock
+                .Setup(r => r.Query())
+                .Returns(entities.AsQueryable());
+
+            this.DomainModelMock
+                .Setup(m => m.Entities)
+                .Returns(this.DomainEntityRepositoryMock.Object);
+
+            // ACT
+
+            await base.ACT_DomainService_reads_entities(entities.Single());
         }
 
         [Fact]

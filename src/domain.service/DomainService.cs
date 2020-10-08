@@ -14,7 +14,7 @@ namespace domain.service
             this.model = model;
         }
 
-        public async Task<CreateDomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
+        public async Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
         {
             var entity = createDomainEntity.MapToDomain();
             await this.model.Entities.Add(entity);
@@ -40,7 +40,12 @@ namespace domain.service
             return Task.FromResult(new DoSomethingResult());
         }
 
-        public async Task<CreateDomainEntityResult> GetEntity(Guid id)
+        public Task<DomainEntityCollectionResult> GetEntities()
+        {
+            return Task.FromResult(this.model.Entities.Query().MapToResponse());
+        }
+
+        public async Task<DomainEntityResult> GetEntity(Guid id)
         {
             var entity = await this.model.Entities.FindById(id);
             return entity.MapToResponse();
