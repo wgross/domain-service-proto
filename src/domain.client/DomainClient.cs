@@ -14,14 +14,16 @@ namespace domain.client
             this.httpClient = client;
         }
 
-        public Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
+        public async Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
         {
-            throw new NotImplementedException();
+            var response = await this.httpClient.PostAsJsonAsync("/domain", createDomainEntity);
+
+            return await response.Content.ReadAsAsync<domain.contract.DomainEntityResult>();
         }
 
         public Task DeleteEntity(Guid entityId)
         {
-            throw new NotImplementedException();
+            return this.httpClient.DeleteAsync($"/domain/{entityId}");
         }
 
         public async Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
@@ -32,14 +34,18 @@ namespace domain.client
             else throw OnError(await response.Content.ReadAsAsync<DomainError>());
         }
 
-        public Task<DomainEntityCollectionResult> GetEntities()
+        public async Task<DomainEntityCollectionResult> GetEntities()
         {
-            throw new NotImplementedException();
+            var response = await this.httpClient.GetAsync($"/domain");
+
+            return await response.Content.ReadAsAsync<domain.contract.DomainEntityCollectionResult>();
         }
 
-        public Task<DomainEntityResult> GetEntity(Guid id)
+        public async Task<DomainEntityResult> GetEntity(Guid id)
         {
-            throw new NotImplementedException();
+            var response = await this.httpClient.GetAsync($"/domain/{id}");
+
+            return await response.Content.ReadAsAsync<domain.contract.DomainEntityResult>();
         }
 
         private Exception OnError(DomainError errorResponse)

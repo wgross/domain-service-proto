@@ -1,5 +1,6 @@
 ﻿using domain.contract;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace domain.host.controllers
@@ -14,8 +15,24 @@ namespace domain.host.controllers
             this.domainService = domainService;
         }
 
-        [HttpPost("do")]
+        [HttpPost, Route("do")]
         public Task<IActionResult> DoSomething([FromBody] DoSomethingRequest request)
             => this.InvokeServiceCommand(() => this.domainService.DoSomething(request));
+
+        [HttpPost]
+        public Task<IActionResult> CreateEntity([FromBody] CreateDomainEntityRequest request)
+            => this.InvokeServiceCreateCommand(() => this.domainService.CreateEntity(request));
+
+        [HttpGet, Route("{id:Guid}")]
+        public Task<IActionResult> GetEntity([FromRoute] Guid id)
+            => this.InvokeServiceCommand(() => this.domainService.GetEntity(id));
+
+        [HttpGet]
+        public Task<IActionResult> GetEntities()
+            => this.InvokeServiceCommand(() => this.domainService.GetEntities());
+
+        [HttpDelete, Route("{id:Guid}")]
+        public Task<IActionResult> DeleteEntity([FromRoute] Guid id)
+            => this.InvokeServiceCommand(() => this.domainService.DeleteEntity(id));
     }
 }

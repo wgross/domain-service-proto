@@ -95,7 +95,7 @@ namespace domain.service.test
 
             // ACT
 
-            await base.ACT_DomainService_reads_entities(entities.Single());
+            await base.ACT_DomainService_reads_entities(entities.Single().Id);
         }
 
         [Fact]

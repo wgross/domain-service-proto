@@ -1,4 +1,5 @@
 using domain.contract;
+using domain.host.Hosting;
 using domain.model;
 using domain.persistence;
 using domain.persistence.EF;
@@ -30,6 +31,7 @@ namespace host
             services.AddScoped<IDomainService, DomainService>();
             services.AddDbContext<DomainDbContext>(opts => opts.UseSqlite(this.Configuration.GetConnectionString("DomainDatabase")));
             services.AddControllers();
+            services.AddHostedService<MigrateDatabaseService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
