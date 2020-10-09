@@ -94,5 +94,16 @@ namespace domain.contract.test
             Assert.Equal(id, result.Entities.Single().Id);
             Assert.Equal("test", result.Entities.Single().Text);
         }
+
+        public async Task ACT_DomainService_reading_entity_by_id_fails_on_unknown_id()
+        {
+            // ACT
+
+            var result = await this.Contract.GetEntity(Guid.NewGuid());
+
+            // ASSERT
+
+            Assert.Null(result);
+        }
     }
 }

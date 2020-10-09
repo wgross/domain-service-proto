@@ -25,7 +25,7 @@ namespace domain.host.controllers
 
         [HttpGet, Route("{id:Guid}")]
         public Task<IActionResult> GetEntity([FromRoute] Guid id)
-            => this.InvokeServiceCommand(() => this.domainService.GetEntity(id));
+            => this.InvokeServiceCommandAtRequiredResource(() => this.domainService.GetEntity(id));
 
         [HttpGet]
         public Task<IActionResult> GetEntities()

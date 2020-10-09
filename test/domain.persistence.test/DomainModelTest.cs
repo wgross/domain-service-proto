@@ -137,7 +137,7 @@ namespace domain.persistence.test
         }
 
         [Fact]
-        public async Task DomainEntityRepository_reads_single_entitiy_by_id()
+        public async Task DomainEntityRepository_reads_entitiy_by_id()
         {
             // ARRANGE
 
@@ -162,6 +162,20 @@ namespace domain.persistence.test
             Assert.NotSame(entity, result);
             Assert.Equal(entity.Id, result.Id);
             Assert.Equal(entity.Text, result.Text);
+        }
+
+        [Fact]
+        public async Task DomainEntityRepository_reading_entitiy_by_id_returns_null_on_unkown_id()
+        {
+            // ACT
+
+            using var actModel = NewModel();
+
+            var result = await actModel.Entities.FindById(Guid.NewGuid());
+
+            // ASSERT
+
+            Assert.Null(result);
         }
 
         [Fact]

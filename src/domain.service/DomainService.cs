@@ -48,7 +48,7 @@ namespace domain.service
         public async Task<DomainEntityResult> GetEntity(Guid id)
         {
             var entity = await this.model.Entities.FindById(id);
-            return entity.MapToResponse();
+            return entity?.MapToResponse();
         }
     }
 }

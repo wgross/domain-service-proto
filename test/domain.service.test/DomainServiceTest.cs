@@ -81,6 +81,24 @@ namespace domain.service.test
         }
 
         [Fact]
+        public async Task DomainService_reading_entity_by_id_fails_on_unknown_id()
+        {
+            // ARRANGE
+
+            this.DomainEntityRepositoryMock
+                .Setup(r => r.FindById(It.IsAny<Guid>()))
+                .ReturnsAsync((DomainEntity)null);
+
+            this.DomainModelMock
+                .Setup(m => m.Entities)
+                .Returns(this.DomainEntityRepositoryMock.Object);
+
+            // ACT
+
+            await base.ACT_DomainService_reading_entity_by_id_fails_on_unknown_id();
+        }
+
+        [Fact]
         public async Task DomainService_reads_entities()
         {
             var entities = new List<DomainEntity> { ArrangeDomainEntity() };

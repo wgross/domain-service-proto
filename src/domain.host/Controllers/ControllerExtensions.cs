@@ -35,6 +35,37 @@ namespace domain.host.controllers
             }
         }
 
+        public static async Task<IActionResult> InvokeServiceCommandAtRequiredResource<C, R>(this C controller, Func<Task<R>> serviceCommand)
+            where C : ControllerBase
+            where R : class
+        {
+            try
+            {
+                var response = await serviceCommand();
+                if (response is null)
+                    return controller.NotFound();
+
+                return controller.Ok(await serviceCommand());
+            }
+            catch (ArgumentNullException ex)
+            {
+                return controller.BadRequest(new DomainError
+                {
+                    ErrorType = nameof(ArgumentNullException),
+                    ParamName = ex.ParamName,
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return controller.BadRequest(new DomainError
+                {
+                    ErrorType = ex.GetType().Name,
+                    Message = ex.Message
+                });
+            }
+        }
+
         public static async Task<IActionResult> InvokeServiceCreateCommand<C, R>(this C controller, Func<Task<R>> serviceCommand, [CallerMemberName] string actionName = default)
             where C : ControllerBase
             where R : class

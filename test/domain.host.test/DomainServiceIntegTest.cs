@@ -42,6 +42,14 @@ namespace host.test
         }
 
         [Fact]
+        public async Task DomainService_reading_entity_by_id_fails_on_unknown_id()
+        {
+            // ACT
+
+            await base.ACT_DomainService_reading_entity_by_id_fails_on_unknown_id();
+        }
+
+        [Fact]
         public async Task DomainService_reads_entities()
         {
             // ARRANGE
