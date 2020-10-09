@@ -20,8 +20,31 @@ namespace domain.host.controllers
             => this.InvokeServiceCommand(() => this.domainService.DoSomething(request));
 
         [HttpPost]
-        public Task<IActionResult> CreateEntity([FromBody] CreateDomainEntityRequest request)
-            => this.InvokeServiceCreateCommand(() => this.domainService.CreateEntity(request));
+        public async Task<IActionResult> CreateEntity([FromBody] CreateDomainEntityRequest request)
+        {
+            try
+            {
+                var result = await this.domainService.CreateEntity(request);
+                return this.CreatedAtAction(actionName: nameof(GetEntity), routeValues: new { id = result.Id }, result);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return this.BadRequest(new DomainError
+                {
+                    ErrorType = nameof(ArgumentNullException),
+                    ParamName = ex.ParamName,
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return this.BadRequest(new DomainError
+                {
+                    ErrorType = ex.GetType().Name,
+                    Message = ex.Message
+                });
+            }
+        }
 
         [HttpGet, Route("{id:Guid}")]
         public Task<IActionResult> GetEntity([FromRoute] Guid id)

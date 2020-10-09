@@ -22,6 +22,31 @@ namespace domain.host.controllers.test
         }
 
         [Fact]
+        public async Task DomainController_create_entity_returns_path()
+        {
+            // ARRANGE
+
+            var entityId = Guid.NewGuid();
+            this.DomainServiceMock
+                .Setup(m => m.CreateEntity(It.IsAny<CreateDomainEntityRequest>()))
+                .ReturnsAsync(new DomainEntityResult
+                {
+                    Id = entityId
+                });
+
+            // ACT
+
+            var result = await this.controller.CreateEntity(new CreateDomainEntityRequest()) as CreatedAtActionResult;
+
+            // ASSERT
+
+            Assert.NotNull(result);
+            Assert.IsType<DomainEntityResult>(result.Value);
+            Assert.Equal(nameof(DomainController.GetEntity), result.ActionName);
+            Assert.Equal(entityId, result.RouteValues["id"]);
+        }
+
+        [Fact]
         public async Task DomainController_reading_by_id_returns_NotFound_on_unkowen_id()
         {
             // ARRANGE
