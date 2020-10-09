@@ -5,7 +5,7 @@ using Xunit;
 
 namespace domain.contract.test
 {
-    public abstract class DomainServiceDoSomethingTestBase
+    public abstract class DomainServiceContractTestBase
     {
         protected IDomainService Contract { get; set; }
 

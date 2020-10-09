@@ -7,11 +7,11 @@ using Xunit;
 
 namespace host.test
 {
-    public class DomainServiceDoSomethingTest : DomainServiceDoSomethingTestBase
+    public class DomainServiceIntegTest : DomainServiceContractTestBase
     {
         private readonly DomainServiceTestHost host;
 
-        public DomainServiceDoSomethingTest()
+        public DomainServiceIntegTest()
         {
             this.host = new DomainServiceTestHost();
             this.Contract = new DomainClient(this.host.CreateClient());

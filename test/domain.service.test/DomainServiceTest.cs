@@ -9,7 +9,7 @@ using Xunit;
 
 namespace domain.service.test
 {
-    public class DomainServiceDoSomethingTest : DomainServiceDoSomethingTestBase, IDisposable
+    public class DomainServiceTest : DomainServiceContractTestBase, IDisposable
     {
         private MockRepository Mocks { get; } = new MockRepository(MockBehavior.Strict);
 
@@ -17,7 +17,7 @@ namespace domain.service.test
 
         private Mock<IDomainEntityRepository> DomainEntityRepositoryMock { get; }
 
-        public DomainServiceDoSomethingTest()
+        public DomainServiceTest()
         {
             this.DomainModelMock = this.Mocks.Create<IDomainModel>();
             this.DomainEntityRepositoryMock = this.Mocks.Create<IDomainEntityRepository>();
