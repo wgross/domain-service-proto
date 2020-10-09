@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Concurrent;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace domain.host.controllers
@@ -27,17 +28,21 @@ namespace domain.host.controllers
         }
 
         [HttpGet()]
-        public async Task Get()
+        public async Task Get(CancellationToken cancelled)
         {
             this.HttpContext.Response.ContentType = "text/event-stream";
             await this.HttpContext.Response.Body.FlushAsync();
 
             try
             {
-                var currentEvent = this.eventQueue.Take();
+                do
+                {
+                    var currentEvent = this.eventQueue.Take(cancelled);
 
-                await JsonSerializer.SerializeAsync(this.HttpContext.Response.Body, currentEvent, this.jsonSerializerOptions);
-                await this.HttpContext.Response.Body.FlushAsync();
+                    await JsonSerializer.SerializeAsync(this.HttpContext.Response.Body, currentEvent, this.jsonSerializerOptions);
+                    await this.HttpContext.Response.Body.FlushAsync();
+                }
+                while (!cancelled.IsCancellationRequested);
             }
             catch (InvalidOperationException)
             {
