@@ -5,7 +5,7 @@ using domain.host.test;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace host.test
+namespace domain.host.test
 {
     public class DomainServiceIntegTest : DomainServiceContractTestBase
     {
