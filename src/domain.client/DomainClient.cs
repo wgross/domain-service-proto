@@ -1,5 +1,6 @@
 ﻿using domain.contract;
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -13,6 +14,8 @@ namespace domain.client
         {
             this.httpClient = client;
         }
+
+        #region CRUD entities
 
         public async Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
         {
@@ -56,5 +59,18 @@ namespace domain.client
                 _ => new InvalidOperationException(errorResponse.Message)
             };
         }
+
+        #endregion CRUD entities
+
+        #region Notify on entities
+
+        public async Task<string> ReceiveSingleDomainEvent()
+        {
+            var resultStream = await this.httpClient.GetStreamAsync("/domain/events");
+            using var resultReader = new StreamReader(resultStream);
+            return await resultReader.ReadLineAsync();
+        }
+
+        #endregion Notify on entities
     }
 }

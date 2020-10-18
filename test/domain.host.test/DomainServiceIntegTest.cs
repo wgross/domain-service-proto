@@ -2,7 +2,6 @@ using domain.client;
 using domain.contract;
 using domain.contract.test;
 using domain.model;
-using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -12,11 +11,13 @@ namespace domain.host.test
     public class DomainServiceIntegTest : DomainServiceContractTestBase
     {
         private readonly DomainServiceTestHost host;
+        private readonly DomainClient domainClient;
 
         public DomainServiceIntegTest()
         {
             this.host = new DomainServiceTestHost();
-            this.Contract = new DomainClient(this.host.CreateClient());
+            this.domainClient = new DomainClient(this.host.CreateClient());
+            this.Contract = this.domainClient;
         }
 
         [Fact]
@@ -95,24 +96,16 @@ namespace domain.host.test
         {
             // ACT
 
-            var httpClient = this.host.CreateClient();
-
-            var resultTask = httpClient.GetStreamAsync("/domain/events");
+            var singleEvent = this.domainClient.ReceiveSingleDomainEvent();
 
             var createdEntity = await this.Contract.CreateEntity(new CreateDomainEntityRequest
             {
                 Text = "test"
             });
 
-            var result = await resultTask;
-
             // ASSERT
 
-            Assert.NotNull(result);
-
-            using var resultReader = new StreamReader(result);
-
-            var resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(await resultReader.ReadLineAsync());
+            var resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(await singleEvent);
 
             Assert.Equal(DomainEventValues.Added, resultEvent.Event);
             Assert.Equal(createdEntity.Id, resultEvent.Data.Id);
