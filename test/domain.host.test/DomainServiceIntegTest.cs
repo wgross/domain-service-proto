@@ -1,7 +1,9 @@
 using domain.client;
 using domain.contract;
 using domain.contract.test;
-using domain.host.test;
+using domain.model;
+using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -79,6 +81,41 @@ namespace domain.host.test
             {
                 Text = "test"
             });
+        }
+
+        public class DomainEventResponse
+        {
+            public DomainEventValues Event { get; set; }
+
+            public DomainEntity Data { get; set; }
+        }
+
+        [Fact]
+        public async Task DomainService_notifies_on_create()
+        {
+            // ACT
+
+            var httpClient = this.host.CreateClient();
+
+            var resultTask = httpClient.GetStreamAsync("/domain/events");
+
+            var createdEntity = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            {
+                Text = "test"
+            });
+
+            var result = await resultTask;
+
+            // ASSERT
+
+            Assert.NotNull(result);
+
+            using var resultReader = new StreamReader(result);
+
+            var resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(await resultReader.ReadLineAsync());
+
+            Assert.Equal(DomainEventValues.Added, resultEvent.Event);
+            Assert.Equal(createdEntity.Id, resultEvent.Data.Id);
         }
     }
 }

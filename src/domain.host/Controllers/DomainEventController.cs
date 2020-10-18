@@ -33,6 +33,8 @@ namespace domain.host.controllers
             this.HttpContext.Response.ContentType = "text/event-stream";
             await this.HttpContext.Response.Body.FlushAsync();
 
+            var newLineArray = System.Text.Encoding.Default.GetBytes(Environment.NewLine.ToCharArray());
+
             try
             {
                 do
@@ -40,11 +42,12 @@ namespace domain.host.controllers
                     var currentEvent = this.eventQueue.Take(cancelled);
 
                     await JsonSerializer.SerializeAsync(this.HttpContext.Response.Body, currentEvent, this.jsonSerializerOptions);
+                    await this.HttpContext.Response.Body.WriteAsync(newLineArray, 0, newLineArray.Length);
                     await this.HttpContext.Response.Body.FlushAsync();
                 }
                 while (!cancelled.IsCancellationRequested);
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException ex)
             {
                 // collection was completed
                 this.domainEventSubscription.Dispose();
