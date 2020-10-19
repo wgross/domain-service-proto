@@ -96,19 +96,33 @@ namespace domain.host.test
         {
             // ACT
 
-            var singleEvent = this.domainClient.ReceiveSingleDomainEvent();
+            var createdEntities = new DomainEntityResult[2];
+            var events = new Task<string>[2];
 
-            var createdEntity = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            events[0] = this.domainClient.ReceiveSingleDomainEvent();
+
+            createdEntities[0] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
             {
-                Text = "test"
+                Text = "test-1"
+            });
+
+            events[1] = this.domainClient.ReceiveSingleDomainEvent();
+            createdEntities[1] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            {
+                Text = "test-2"
             });
 
             // ASSERT
 
-            var resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(await singleEvent);
+            Task.WaitAll(events);
 
-            Assert.Equal(DomainEventValues.Added, resultEvent.Event);
-            Assert.Equal(createdEntity.Id, resultEvent.Data.Id);
+            var resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(await events[0]);
+
+            Assert.Equal(createdEntities[0].Id, resultEvent.Data.Id);
+
+            resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(await events[1]);
+
+            Assert.Equal(createdEntities[1].Id, resultEvent.Data.Id);
         }
     }
 }
