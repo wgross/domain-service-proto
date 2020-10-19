@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace domain.client
@@ -78,16 +79,27 @@ namespace domain.client
             return await resultReader.ReadLineAsync();
         }
 
-        public Task ReceiveMultipleDomainEvent()
+        public Task ReceiveMultipleDomainEvent(CancellationToken stopListening)
         {
             return Task.Run(async () =>
             {
-                var resultMessage = await this.httpClient.GetAsync("/domain/events", HttpCompletionOption.ResponseHeadersRead);
-                using var resultStream = await resultMessage.Content.ReadAsStreamAsync();
-                using var resultReader = new StreamReader(resultStream);
-
-                Publish(await resultReader.ReadLineAsync());
-                Publish(await resultReader.ReadLineAsync());
+                try
+                {
+                    using var resultMessage = await this.httpClient.GetAsync("/domain/events", HttpCompletionOption.ResponseHeadersRead, stopListening);
+                    using var resultStream = await resultMessage.Content.ReadAsStreamAsync();
+                    using var resultReader = new StreamReader(resultStream);
+                    do
+                    {
+                        var receiveTask = resultReader.ReadLineAsync();
+                        Task.WaitAll(new[] { receiveTask }, stopListening);
+                        Publish(await receiveTask);
+                    }
+                    while (!stopListening.IsCancellationRequested);
+                }
+                catch (OperationCanceledException ex)
+                {
+                    return;
+                }
             });
         }
 

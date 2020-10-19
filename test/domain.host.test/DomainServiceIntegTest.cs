@@ -5,6 +5,7 @@ using domain.model;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -112,15 +113,19 @@ namespace domain.host.test
         [Fact]
         public async Task DomainService_notifies_on_create()
         {
-            // ACT
+            // ARRANGE
 
             var createdEntities = new DomainEntityResult[2];
 
             var events = new EventObserver();
 
-            var subscription = this.domainClient.Subscribe(events);
+            using var subscription = this.domainClient.Subscribe(events);
 
-            var eventTask = this.domainClient.ReceiveMultipleDomainEvent();
+            var stopListening = new CancellationTokenSource();
+
+            // ACT
+
+            var eventTask = this.domainClient.ReceiveMultipleDomainEvent(stopListening.Token);
 
             createdEntities[0] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
             {
@@ -132,9 +137,11 @@ namespace domain.host.test
                 Text = "test-2"
             });
 
-            // ASSERT
-
+            await Task.Delay(1000); // give time to deliver
+            stopListening.Cancel();
             await eventTask;
+
+            // ASSERT
 
             var resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(events.Collected[0]);
 
