@@ -82,7 +82,8 @@ namespace domain.client
         {
             return Task.Run(async () =>
             {
-                var resultStream = await this.httpClient.GetStreamAsync("/domain/events");
+                var resultMessage = await this.httpClient.GetAsync("/domain/events", HttpCompletionOption.ResponseHeadersRead);
+                using var resultStream = await resultMessage.Content.ReadAsStreamAsync();
                 using var resultReader = new StreamReader(resultStream);
 
                 Publish(await resultReader.ReadLineAsync());
