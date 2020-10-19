@@ -15,10 +15,12 @@ namespace domain.host.controllers
         private readonly Channel<DomainEvent> eventChannel = Channel.CreateUnbounded<DomainEvent>();
 
         private IDisposable domainEventSubscription;
+        private readonly byte[] newLineBytes;
         private readonly JsonSerializerOptions jsonSerializerOptions;
 
         public DomainEventController(IDomainModel model)
         {
+            this.newLineBytes = System.Text.Encoding.Default.GetBytes(Environment.NewLine.ToCharArray());
             this.model = model;
             this.domainEventSubscription = model.DomainEvents.Subscribe(this);
             this.jsonSerializerOptions = new JsonSerializerOptions
@@ -27,13 +29,12 @@ namespace domain.host.controllers
             };
         }
 
+        #region Push Domain events to Web clients
+
         [HttpGet()]
         public async Task Get(CancellationToken cancelled)
         {
-            this.HttpContext.Response.ContentType = "text/event-stream";
-            await this.HttpContext.Response.Body.FlushAsync();
-
-            var newLineArray = System.Text.Encoding.Default.GetBytes(Environment.NewLine.ToCharArray());
+            await BeginEventStream();
 
             try
             {
@@ -41,9 +42,7 @@ namespace domain.host.controllers
                 {
                     await foreach (var currentEvent in this.eventChannel.Reader.ReadAllAsync(cancelled))
                     {
-                        await JsonSerializer.SerializeAsync(this.HttpContext.Response.Body, currentEvent, this.jsonSerializerOptions);
-                        await this.HttpContext.Response.Body.WriteAsync(newLineArray, 0, newLineArray.Length);
-                        await this.HttpContext.Response.Body.FlushAsync();
+                        await WriteEventStream(currentEvent);
                     }
                 }
                 while (!cancelled.IsCancellationRequested);
@@ -56,6 +55,23 @@ namespace domain.host.controllers
             }
         }
 
+        private async Task WriteEventStream(DomainEvent currentEvent)
+        {
+            await JsonSerializer.SerializeAsync(this.HttpContext.Response.Body, currentEvent, this.jsonSerializerOptions);
+            await this.HttpContext.Response.Body.WriteAsync(this.newLineBytes, 0, this.newLineBytes.Length);
+            await this.HttpContext.Response.Body.FlushAsync();
+        }
+
+        private async Task BeginEventStream()
+        {
+            this.HttpContext.Response.ContentType = "text/event-stream";
+            await this.HttpContext.Response.Body.FlushAsync();
+        }
+
+        #endregion Push Domain events to Web clients
+
+        #region Receive Domain Events
+
         public void OnCompleted() => this.eventChannel.Writer.Complete();
 
         public void OnError(Exception error)
@@ -63,5 +79,7 @@ namespace domain.host.controllers
         }
 
         public void OnNext(DomainEvent value) => this.eventChannel.Writer.TryWrite(value);
+
+        #endregion Receive Domain Events
     }
 }
