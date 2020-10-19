@@ -82,8 +82,11 @@ namespace domain.client
         {
             return Task.Run(async () =>
             {
-                Publish(await this.ReceiveSingleDomainEvent());
-                Publish(await this.ReceiveSingleDomainEvent());
+                var resultStream = await this.httpClient.GetStreamAsync("/domain/events");
+                using var resultReader = new StreamReader(resultStream);
+
+                Publish(await resultReader.ReadLineAsync());
+                Publish(await resultReader.ReadLineAsync());
             });
         }
 
