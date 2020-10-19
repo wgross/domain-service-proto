@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
 namespace domain.client
@@ -64,11 +65,26 @@ namespace domain.client
 
         #region Notify on entities
 
+        private readonly ISubject<string> IncomingEvents = new Subject<string>();
+
+        public IDisposable Subscribe(IObserver<string> eventObserver) => this.IncomingEvents.Subscribe(eventObserver);
+
+        private void Publish(string ev) => this.IncomingEvents.OnNext(ev);
+
         public async Task<string> ReceiveSingleDomainEvent()
         {
             var resultStream = await this.httpClient.GetStreamAsync("/domain/events");
             using var resultReader = new StreamReader(resultStream);
             return await resultReader.ReadLineAsync();
+        }
+
+        public Task ReceiveMultipleDomainEvent()
+        {
+            return Task.Run(async () =>
+            {
+                Publish(await this.ReceiveSingleDomainEvent());
+                Publish(await this.ReceiveSingleDomainEvent());
+            });
         }
 
         #endregion Notify on entities

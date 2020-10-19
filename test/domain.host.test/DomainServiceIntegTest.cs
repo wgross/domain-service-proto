@@ -2,6 +2,8 @@ using domain.client;
 using domain.contract;
 using domain.contract.test;
 using domain.model;
+using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -91,19 +93,34 @@ namespace domain.host.test
             public DomainEntity Data { get; set; }
         }
 
+        public class EventObserver : IObserver<string>
+        {
+            public List<string> Collected { get; } = new List<string>();
+
+            public void OnCompleted()
+            {
+            }
+
+            public void OnError(Exception error)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void OnNext(string value) => this.Collected.Add(value);
+        }
+
         [Fact]
         public async Task DomainService_notifies_on_create()
         {
             // ACT
 
             var createdEntities = new DomainEntityResult[2];
-            var events = new string[2];
 
-            var eventTask = Task.Run(async () =>
-            {
-                events[0] = await this.domainClient.ReceiveSingleDomainEvent();
-                events[1] = await this.domainClient.ReceiveSingleDomainEvent();
-            });
+            var events = new EventObserver();
+
+            var subscription = this.domainClient.Subscribe(events);
+
+            var eventTask = this.domainClient.ReceiveMultipleDomainEvent();
 
             createdEntities[0] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
             {
@@ -119,11 +136,11 @@ namespace domain.host.test
 
             await eventTask;
 
-            var resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(events[0]);
+            var resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(events.Collected[0]);
 
             Assert.Equal(createdEntities[0].Id, resultEvent.Data.Id);
 
-            resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(events[1]);
+            resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(events.Collected[1]);
 
             Assert.Equal(createdEntities[1].Id, resultEvent.Data.Id);
         }
