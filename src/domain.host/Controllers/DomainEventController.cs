@@ -1,9 +1,9 @@
 ﻿using domain.model;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace domain.host.controllers
@@ -12,7 +12,7 @@ namespace domain.host.controllers
     public sealed class DomainEventController : ControllerBase, IObserver<DomainEvent>
     {
         private readonly IDomainModel model;
-        private readonly BlockingCollection<DomainEvent> eventQueue = new BlockingCollection<DomainEvent>();
+        private readonly Channel<DomainEvent> eventChannel = Channel.CreateUnbounded<DomainEvent>();
 
         private IDisposable domainEventSubscription;
         private readonly JsonSerializerOptions jsonSerializerOptions;
@@ -39,11 +39,12 @@ namespace domain.host.controllers
             {
                 do
                 {
-                    var currentEvent = this.eventQueue.Take(cancelled);
-
-                    await JsonSerializer.SerializeAsync(this.HttpContext.Response.Body, currentEvent, this.jsonSerializerOptions);
-                    await this.HttpContext.Response.Body.WriteAsync(newLineArray, 0, newLineArray.Length);
-                    await this.HttpContext.Response.Body.FlushAsync();
+                    await foreach (var currentEvent in this.eventChannel.Reader.ReadAllAsync(cancelled))
+                    {
+                        await JsonSerializer.SerializeAsync(this.HttpContext.Response.Body, currentEvent, this.jsonSerializerOptions);
+                        await this.HttpContext.Response.Body.WriteAsync(newLineArray, 0, newLineArray.Length);
+                        await this.HttpContext.Response.Body.FlushAsync();
+                    }
                 }
                 while (!cancelled.IsCancellationRequested);
             }
@@ -55,12 +56,12 @@ namespace domain.host.controllers
             }
         }
 
-        public void OnCompleted() => this.eventQueue.CompleteAdding();
+        public void OnCompleted() => this.eventChannel.Writer.Complete();
 
         public void OnError(Exception error)
         {
         }
 
-        public void OnNext(DomainEvent value) => this.eventQueue.Add(value);
+        public void OnNext(DomainEvent value) => this.eventChannel.Writer.TryWrite(value);
     }
 }
