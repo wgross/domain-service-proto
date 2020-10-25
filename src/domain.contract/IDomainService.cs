@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace domain.contract
@@ -14,5 +15,7 @@ namespace domain.contract
         Task DeleteEntity(Guid entityId);
 
         Task<DomainEntityCollectionResult> GetEntities();
+
+        Task<IDisposable> Subscribe(IObserver<DomainEntityEvent> events);
     }
 }

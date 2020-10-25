@@ -1,11 +1,6 @@
 using domain.client;
 using domain.contract;
 using domain.contract.test;
-using domain.model;
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -22,6 +17,8 @@ namespace domain.host.test
             this.domainClient = new DomainClient(this.host.CreateClient());
             this.Contract = this.domainClient;
         }
+
+        #region Test Domain Services Command Path
 
         [Fact]
         public Task DomainService_does_something() => base.ACT_DomainService_does_something();
@@ -79,6 +76,8 @@ namespace domain.host.test
             await base.ACT_DomainService_deletes_entity_by_id(entity.Id);
         }
 
+        #endregion Test Domain Services Command Path
+
         private Task<DomainEntityResult> ArrangeDomainEntity()
         {
             return this.Contract.CreateEntity(new CreateDomainEntityRequest
@@ -87,69 +86,87 @@ namespace domain.host.test
             });
         }
 
-        public class DomainEventResponse
-        {
-            public DomainEventValues Event { get; set; }
-
-            public DomainEntity Data { get; set; }
-        }
-
-        public class EventObserver : IObserver<string>
-        {
-            public List<string> Collected { get; } = new List<string>();
-
-            public void OnCompleted()
-            {
-            }
-
-            public void OnError(Exception error)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void OnNext(string value) => this.Collected.Add(value);
-        }
+        #region Test Domain Services Events
 
         [Fact]
-        public async Task DomainService_notifies_on_create()
+        public Task DomainService_notifies_on_create() => base.ACT_DomainService_notifies_on_create();
+
+        //{
+        //    // ARRANGE
+
+        //    var createdEntities = new DomainEntityResult[2];
+        //    var events = new DomainEventCollector();
+        //    var stopListening = new CancellationTokenSource();
+
+        //    // ACT
+
+        //    var eventTask = this.Contract.SubscribeAndListen(stopListening.Token, events);
+
+        //    createdEntities[0] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+        //    {
+        //        Text = "test-1"
+        //    });
+
+        //    createdEntities[1] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+        //    {
+        //        Text = "test-2"
+        //    });
+
+        //    await Task.Delay(1000); // give time to deliver
+        //    stopListening.Cancel();
+        //    await eventTask;
+
+        //    // ASSERT
+
+        //    Assert.Equal(DomainEntityEventTypes.Added, events.Collected[0].EventType);
+        //    Assert.Equal(createdEntities[0].Id, events.Collected[0].Id);
+
+        //    Assert.Equal(DomainEntityEventTypes.Added, events.Collected[1].EventType);
+        //    Assert.Equal(createdEntities[1].Id, events.Collected[1].Id);
+        //}
+
+        [Fact]
+        public async Task DomainService_notifies_on_delete()
         {
             // ARRANGE
 
-            var createdEntities = new DomainEntityResult[2];
-
-            var events = new EventObserver();
-
-            using var subscription = this.domainClient.Subscribe(events);
-
-            var stopListening = new CancellationTokenSource();
-
-            // ACT
-
-            var eventTask = this.domainClient.ReceiveMultipleDomainEvent(stopListening.Token);
-
-            createdEntities[0] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            var createdEntity = await this.Contract.CreateEntity(new CreateDomainEntityRequest
             {
                 Text = "test-1"
             });
 
-            createdEntities[1] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
-            {
-                Text = "test-2"
-            });
+            // ACT
 
-            await Task.Delay(1000); // give time to deliver
-            stopListening.Cancel();
-            await eventTask;
-
-            // ASSERT
-
-            var resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(events.Collected[0]);
-
-            Assert.Equal(createdEntities[0].Id, resultEvent.Data.Id);
-
-            resultEvent = JsonSerializer.Deserialize<DomainEventResponse>(events.Collected[1]);
-
-            Assert.Equal(createdEntities[1].Id, resultEvent.Data.Id);
+            await base.ACT_DomainService_notifies_on_delete(createdEntity.Id);
         }
+
+        //{
+        //    // ARRANGE
+
+        //    var createdEntity = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+        //    {
+        //        Text = "test-1"
+        //    });
+
+        //    var events = new DomainEventCollector();
+        //    var stopListening = new CancellationTokenSource();
+
+        //    // ACT
+
+        //    var eventTask = this.domainClient.SubscribeAndListen(stopListening.Token, events);
+
+        //    await this.domainClient.DeleteEntity(createdEntity.Id);
+
+        //    await Task.Delay(1000); // give time to deliver
+        //    stopListening.Cancel();
+        //    await eventTask;
+
+        //    // ASSERT
+
+        //    Assert.Equal(DomainEntityEventTypes.Deleted, events.Collected[0].EventType);
+        //    Assert.Equal(createdEntity.Id, events.Collected[0].Id);
+        //}
+
+        #endregion Test Domain Services Events
     }
 }

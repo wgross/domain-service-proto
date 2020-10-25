@@ -9,6 +9,8 @@ using Xunit;
 
 namespace domain.service.test
 {
+    [Collection(nameof(DomainService))]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]
     public class DomainServiceTest : DomainServiceContractTestBase, IDisposable
     {
         private MockRepository Mocks { get; } = new MockRepository(MockBehavior.Strict);
@@ -24,11 +26,7 @@ namespace domain.service.test
             this.Contract = new DomainService(this.DomainModelMock.Object);
         }
 
-#pragma warning disable CA1063 // Implement IDisposable Correctly
-
         public void Dispose() => this.Mocks.VerifyAll();
-
-#pragma warning restore CA1063 // Implement IDisposable Correctly
 
         [Fact]
         public Task DomainService_does_something() => base.ACT_DomainService_does_something();
@@ -61,6 +59,33 @@ namespace domain.service.test
 
             await base.ACT_DomainService_creates_entity();
         }
+
+        [Fact]
+        public async Task DomainService_deletes_entity_by_id()
+        {
+            // ARRANGE
+
+            var entity = ArrangeDomainEntity();
+
+            this.ArrangeFindEntityById(entity);
+
+            this.DomainModelMock
+                .Setup(m => m.Entities)
+                .Returns(this.DomainEntityRepositoryMock.Object);
+
+            this.DomainEntityRepositoryMock
+                .Setup(r => r.Delete(entity));
+
+            this.DomainModelMock
+                .Setup(m => m.SaveChanges())
+                .ReturnsAsync(1);
+
+            // ACT
+
+            await base.ACT_DomainService_deletes_entity_by_id(entity.Id);
+        }
+
+        #region Domain Query Path
 
         [Fact]
         public async Task DomainService_reads_entity_by_id()
@@ -101,6 +126,8 @@ namespace domain.service.test
         [Fact]
         public async Task DomainService_reads_entities()
         {
+            // ARRANGE
+
             var entities = new List<DomainEntity> { ArrangeDomainEntity() };
 
             this.DomainEntityRepositoryMock
@@ -116,30 +143,58 @@ namespace domain.service.test
             await base.ACT_DomainService_reads_entities(entities.Single().Id);
         }
 
+        #endregion Domain Query Path
+
+        #region Domain Events
+
         [Fact]
-        public async Task DomainService_deletes_entity_by_id()
+        public async Task DomainService_notifies_on_create()
         {
             // ARRANGE
 
-            var entity = ArrangeDomainEntity();
-
-            this.ArrangeFindEntityById(entity);
-
-            this.DomainModelMock
+            DomainModelMock
                 .Setup(m => m.Entities)
-                .Returns(this.DomainEntityRepositoryMock.Object);
+                .Returns(DomainEntityRepositoryMock.Object);
 
-            this.DomainEntityRepositoryMock
-                .Setup(r => r.Delete(entity));
+            DomainEntityRepositoryMock
+                .Setup(r => r.Add(It.IsAny<DomainEntity>()))
+                .Returns(Task.CompletedTask);
 
-            this.DomainModelMock
+            DomainModelMock
                 .Setup(m => m.SaveChanges())
                 .ReturnsAsync(1);
 
             // ACT
 
-            await base.ACT_DomainService_deletes_entity_by_id(entity.Id);
+            await base.ACT_DomainService_notifies_on_create();
         }
+
+        [Fact]
+        public async Task DomainService_notifies_on_delete()
+        {
+            // ARRANGE
+
+            var entity = ArrangeDomainEntity();
+
+            DomainModelMock
+                .Setup(m => m.Entities)
+                .Returns(DomainEntityRepositoryMock.Object);
+
+            this.ArrangeFindEntityById(entity);
+
+            DomainEntityRepositoryMock
+                .Setup(r => r.Delete(entity));
+
+            DomainModelMock
+                .Setup(m => m.SaveChanges())
+                .ReturnsAsync(1);
+
+            // ACT
+
+            await base.ACT_DomainService_notifies_on_delete(entity.Id);
+        }
+
+        #endregion Domain Events
 
         #region Arrangements
 

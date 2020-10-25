@@ -10,6 +10,9 @@
     <ProjectReference Include="..\domain.contract\domain.contract.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="4.7.2"/>
+  </ItemGroup>
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>

@@ -7,8 +7,6 @@ namespace domain.model
     {
         IDomainEntityRepository Entities { get; }
 
-        IObservable<DomainEvent> DomainEvents { get; }
-
         Task<int> SaveChanges();
     }
 }

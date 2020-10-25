@@ -3,7 +3,6 @@ using domain.persistence.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -64,21 +63,6 @@ namespace domain.persistence.test
 
         private IDomainModel NewModel() => this.serviceProvider.CreateScope().ServiceProvider.GetRequiredService<IDomainModel>();
 
-        public class Observer : IObserver<DomainEvent>
-        {
-            public List<DomainEvent> Events { get; } = new List<DomainEvent>();
-
-            public void OnCompleted()
-            {
-            }
-
-            public void OnError(Exception error)
-            {
-            }
-
-            public void OnNext(DomainEvent value) => this.Events.Add(value);
-        }
-
         [Fact]
         public async Task DomainEntityRepository_creates_new_entity()
         {
@@ -89,23 +73,17 @@ namespace domain.persistence.test
                 Text = "data"
             };
 
-            var observer = new Observer();
-
             // ACT
 
             using var model = NewModel();
 
             await model.Entities.Add(entity);
 
-            using var subscription = model.DomainEvents.Subscribe(observer);
-
             var result = await model.SaveChanges();
 
             // ASSERT
 
             Assert.Equal(1, result);
-            Assert.Equal(DomainEventValues.Added, observer.Events.Single().Event);
-            Assert.Same(entity, observer.Events.Single().Data);
         }
 
         [Fact]
@@ -193,12 +171,9 @@ namespace domain.persistence.test
             await arrangeModel.Entities.Add(arrangeEntity);
             await arrangeModel.SaveChanges();
 
-            var observer = new Observer();
-
             // ACT
 
             using var actModel = NewModel();
-            using var subscription = actModel.DomainEvents.Subscribe(observer);
 
             var actEntity = await actModel.Entities.FindById(arrangeEntity.Id);
 
@@ -217,8 +192,6 @@ namespace domain.persistence.test
             Assert.NotSame(arrangeEntity, assertEntity);
             Assert.Equal(arrangeEntity.Id, assertEntity.Id);
             Assert.Equal("changed", assertEntity.Text);
-            Assert.Equal(DomainEventValues.Modified, observer.Events.Single().Event);
-            Assert.Same(actEntity, observer.Events.Single().Data);
         }
 
         [Fact]
@@ -236,12 +209,9 @@ namespace domain.persistence.test
             await arrangeModel.Entities.Add(arrangeEntity);
             await arrangeModel.SaveChanges();
 
-            var observer = new Observer();
-
             // ACT
 
             using var actModel = NewModel();
-            using var subscription = actModel.DomainEvents.Subscribe(observer);
 
             var actEntity = await actModel.Entities.FindById(arrangeEntity.Id);
             actModel.Entities.Delete(actEntity);
@@ -255,8 +225,6 @@ namespace domain.persistence.test
             var assertModel = NewModel();
 
             Assert.Null(await assertModel.Entities.FindById(arrangeEntity.Id));
-            Assert.Equal(DomainEventValues.Deleted, observer.Events.Single().Event);
-            Assert.Same(actEntity, observer.Events.Single().Data);
         }
     }
 }

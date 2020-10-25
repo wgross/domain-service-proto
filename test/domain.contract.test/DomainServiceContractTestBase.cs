@@ -105,5 +105,59 @@ namespace domain.contract.test
 
             Assert.Null(result);
         }
+
+        public async Task ACT_DomainService_notifies_on_create()
+        {
+            // ARRANGE
+
+            var createdEntities = new DomainEntityResult[2];
+            var observer = new DomainEventCollector();
+
+            // ACT
+
+            var subscription = await this.Contract.Subscribe(observer);
+
+            createdEntities[0] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            {
+                Text = "test-1"
+            });
+
+            createdEntities[1] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            {
+                Text = "test-2"
+            });
+
+            await Task.Delay(1000);
+
+            subscription.Dispose();
+
+            // ASSERT
+
+            Assert.Equal(DomainEntityEventTypes.Added, observer.Collected[0].EventType);
+            Assert.Equal(createdEntities[0].Id, observer.Collected[0].Id);
+
+            Assert.Equal(DomainEntityEventTypes.Added, observer.Collected[1].EventType);
+            Assert.Equal(createdEntities[1].Id, observer.Collected[1].Id);
+        }
+
+        public async Task ACT_DomainService_notifies_on_delete(Guid entityId)
+        {
+            // ARRANGE
+
+            var events = new DomainEventCollector();
+
+            // ACT
+
+            var subscription = await this.Contract.Subscribe(events);
+
+            await this.Contract.DeleteEntity(entityId);
+
+            subscription.Dispose();
+
+            // ASSERT
+
+            Assert.Equal(DomainEntityEventTypes.Deleted, events.Collected[0].EventType);
+            Assert.Equal(entityId, events.Collected[0].Id);
+        }
     }
 }
