@@ -157,7 +157,7 @@ namespace domain.persistence.test
         }
 
         [Fact]
-        public async Task DomainEntityRepository_updates_single_entitiy_by_id()
+        public async Task DomainEntityRepository_updates_entitiy_by_id()
         {
             // ARRANGE
 
@@ -195,7 +195,7 @@ namespace domain.persistence.test
         }
 
         [Fact]
-        public async Task DomainEntityRepository_deletes_single_entitiy_by_id()
+        public async Task DomainEntityRepository_deletes_entitiy_by_id()
         {
             // ARRANGE
 

@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace domain.host.controllers
 {
+    /// <summary>
+    /// These extensions provide an opinonated implementation of controller endppoint behavior.
+    /// They translate commoan domain behavior to the HTTP protocol.
+    /// </summary>
     public static class ControllerExtensions
     {
         public static async Task<IActionResult> MapExceptions<C>(this C controller, Func<Task<IActionResult>> action)
@@ -60,6 +64,27 @@ namespace domain.host.controllers
             {
                 await serviceCommand();
                 return controller.NoContent();
+            });
+        }
+
+        /// <summary>
+        /// The common behavior for delete enetpints is to return <see cref="NoContentResult"/> on success and
+        /// <see cref="NotFoundResult"/> if the entity doesn exists any more. Other error causes must be passed as exceptions.
+        /// </summary>
+        /// <typeparam name="C"></typeparam>
+        /// <param name="controller"></param>
+        /// <param name="deleteCommand"></param>
+        /// <returns></returns>
+        public static Task<IActionResult> InvokeDeleteCommand<C>(this C controller, Func<Task<bool>> deleteCommand)
+            where C : ControllerBase
+        {
+            return controller.MapExceptions(async () =>
+            {
+                return await deleteCommand() switch
+                {
+                    true => controller.NoContent(),
+                    false => controller.NotFound()
+                };
             });
         }
     }

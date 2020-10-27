@@ -56,6 +56,6 @@ namespace domain.host.controllers
 
         [HttpDelete, Route("{id:Guid}")]
         public Task<IActionResult> DeleteEntity([FromRoute] Guid id)
-            => this.InvokeServiceCommand(() => this.domainService.DeleteEntity(id));
+            => this.InvokeDeleteCommand(() => this.domainService.DeleteEntity(id));
     }
 }

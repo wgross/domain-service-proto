@@ -23,13 +23,21 @@ namespace domain.client
         public async Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
         {
             var response = await this.httpClient.PostAsJsonAsync("/domain", createDomainEntity);
-
-            return await response.Content.ReadAsAsync<domain.contract.DomainEntityResult>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadAsAsync<domain.contract.DomainEntityResult>();
+            else throw OnError(await response.Content.ReadAsAsync<DomainError>());
         }
 
-        public Task DeleteEntity(Guid entityId)
+        public async Task<bool> DeleteEntity(Guid entityId)
         {
-            return this.httpClient.DeleteAsync($"/domain/{entityId}");
+            var response = await this.httpClient.DeleteAsync($"/domain/{entityId}");
+            return response switch
+            {
+                HttpResponseMessage r when r.IsSuccessStatusCode => true,
+                HttpResponseMessage r when r.StatusCode == System.Net.HttpStatusCode.NotFound => false,
+
+                _ => throw new InvalidOperationException($"Unknown error: {response.StatusCode}")
+            };
         }
 
         public async Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)

@@ -12,7 +12,7 @@ namespace domain.contract
 
         Task<DomainEntityResult> GetEntity(Guid id);
 
-        Task DeleteEntity(Guid entityId);
+        Task<bool> DeleteEntity(Guid entityId);
 
         Task<DomainEntityCollectionResult> GetEntities();
 

@@ -7,13 +7,13 @@ namespace domain.contract.test
 {
     public abstract class DomainServiceContractTestBase
     {
-        protected IDomainService Contract { get; set; }
+        protected IDomainService DomainContract { get; set; }
 
-        protected async Task ACT_DomainService_does_something()
+        protected async Task DomainContract_does_something()
         {
             // ACT
 
-            var result = await this.Contract.DoSomething(new domain.contract.DoSomethingRequest
+            var result = await this.DomainContract.DoSomething(new domain.contract.DoSomethingRequest
             {
                 Data = "data"
             });
@@ -23,22 +23,22 @@ namespace domain.contract.test
             Assert.IsType<domain.contract.DoSomethingResult>(result);
         }
 
-        protected async Task ACT_DomainService_doing_someting_fails_on_missing_body()
+        protected async Task DomainContract_doing_someting_fails_on_missing_body()
         {
             // ACT
 
-            var result = await Assert.ThrowsAsync<ArgumentNullException>(() => this.Contract.DoSomething(null));
+            var result = await Assert.ThrowsAsync<ArgumentNullException>(() => this.DomainContract.DoSomething(null));
 
             // ASSERT
 
             Assert.Equal("rq", result.ParamName);
         }
 
-        protected async Task ACT_DomainService_doing_something_fails_on_bad_input()
+        protected async Task DomainContract_doing_something_fails_on_bad_input()
         {
             // ACT
 
-            var result = await Assert.ThrowsAsync<InvalidOperationException>(() => this.Contract.DoSomething(new DoSomethingRequest
+            var result = await Assert.ThrowsAsync<InvalidOperationException>(() => this.DomainContract.DoSomething(new DoSomethingRequest
             {
                 Data = null
             }));
@@ -48,11 +48,11 @@ namespace domain.contract.test
             Assert.Equal("Data is required", result.Message);
         }
 
-        protected async Task ACT_DomainService_creates_entity()
+        protected async Task DomainContract_creates_entity()
         {
             // ACT
 
-            var result = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            var result = await this.DomainContract.CreateEntity(new CreateDomainEntityRequest
             {
                 Text = "test"
             });
@@ -63,11 +63,22 @@ namespace domain.contract.test
             Assert.NotEqual(Guid.Empty, result.Id);
         }
 
-        protected async Task ACT_DomainService_reads_entity_by_id(Guid id)
+        protected async Task DomainContract_creating_entity_fails_on_null_request()
         {
             // ACT
 
-            var result = await this.Contract.GetEntity(id);
+            var result = await Assert.ThrowsAsync<ArgumentNullException>(() => this.DomainContract.CreateEntity(null));
+
+            // ASSERT
+
+            Assert.Equal("createDomainEntity", result.ParamName);
+        }
+
+        protected async Task DomainContract_reads_entity_by_id(Guid id)
+        {
+            // ACT
+
+            var result = await this.DomainContract.GetEntity(id);
 
             // ASSERT
 
@@ -75,18 +86,18 @@ namespace domain.contract.test
             Assert.Equal(id, result.Id);
         }
 
-        public async Task ACT_DomainService_deletes_entity_by_id(Guid entityId)
+        public async Task DomainContract_deletes_entity_by_id(Guid entityId)
         {
             // ACT
 
-            await this.Contract.DeleteEntity(entityId);
+            await this.DomainContract.DeleteEntity(entityId);
         }
 
-        public async Task ACT_DomainService_reads_entities(Guid id)
+        public async Task DomainContract_reads_entities(Guid id)
         {
             // ACT
 
-            var result = await this.Contract.GetEntities();
+            var result = await this.DomainContract.GetEntities();
 
             // ASSERT
 
@@ -95,18 +106,18 @@ namespace domain.contract.test
             Assert.Equal("test", result.Entities.Single().Text);
         }
 
-        public async Task ACT_DomainService_reading_entity_by_id_fails_on_unknown_id()
+        public async Task DomainContract_reading_entity_by_id_fails_on_unknown_id()
         {
             // ACT
 
-            var result = await this.Contract.GetEntity(Guid.NewGuid());
+            var result = await this.DomainContract.GetEntity(Guid.NewGuid());
 
             // ASSERT
 
             Assert.Null(result);
         }
 
-        public async Task ACT_DomainService_notifies_on_create()
+        public async Task DomainContract_notifies_on_create()
         {
             // ARRANGE
 
@@ -115,14 +126,14 @@ namespace domain.contract.test
 
             // ACT
 
-            var subscription = await this.Contract.Subscribe(observer);
+            var subscription = await this.DomainContract.Subscribe(observer);
 
-            createdEntities[0] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            createdEntities[0] = await this.DomainContract.CreateEntity(new CreateDomainEntityRequest
             {
                 Text = "test-1"
             });
 
-            createdEntities[1] = await this.Contract.CreateEntity(new CreateDomainEntityRequest
+            createdEntities[1] = await this.DomainContract.CreateEntity(new CreateDomainEntityRequest
             {
                 Text = "test-2"
             });
@@ -140,7 +151,18 @@ namespace domain.contract.test
             Assert.Equal(createdEntities[1].Id, observer.Collected[1].Id);
         }
 
-        public async Task ACT_DomainService_notifies_on_delete(Guid entityId)
+        public async Task DomainContract_deleting_entity_by_id_returns_false_on_missing_entity()
+        {
+            // ACT
+
+            var result = await this.DomainContract.DeleteEntity(Guid.NewGuid());
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        public async Task DomainContract_notifies_on_delete(Guid entityId)
         {
             // ARRANGE
 
@@ -148,9 +170,9 @@ namespace domain.contract.test
 
             // ACT
 
-            var subscription = await this.Contract.Subscribe(events);
+            var subscription = await this.DomainContract.Subscribe(events);
 
-            await this.Contract.DeleteEntity(entityId);
+            await this.DomainContract.DeleteEntity(entityId);
 
             subscription.Dispose();
 

@@ -2,7 +2,6 @@
 using domain.model;
 using System;
 using System.Reactive.Subjects;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace domain.service
@@ -18,6 +17,9 @@ namespace domain.service
 
         public async Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
         {
+            if (createDomainEntity is null)
+                throw new ArgumentNullException(nameof(createDomainEntity));
+
             var entity = createDomainEntity.MapToDomain();
             await this.model.Entities.Add(entity);
             await this.model.SaveChanges();
@@ -31,10 +33,14 @@ namespace domain.service
             return entity.MapToResponse();
         }
 
-        public async Task DeleteEntity(Guid entityId)
+        public async Task<bool> DeleteEntity(Guid entityId)
         {
             var entity = await this.model.Entities.FindById(entityId);
+            if (entity is null)
+                return false;
+
             this.model.Entities.Delete(entity);
+
             await this.model.SaveChanges();
 
             this.Publish(new DomainEntityEvent
@@ -42,6 +48,8 @@ namespace domain.service
                 Id = entity.Id,
                 EventType = DomainEntityEventTypes.Deleted
             });
+
+            return true;
         }
 
         public Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
