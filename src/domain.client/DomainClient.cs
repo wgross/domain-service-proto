@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace domain.client
 {
-    public sealed class DomainClient : IDomainService
+    public sealed class DomainClient : IDomainService, IDisposable
     {
         private readonly HttpClient httpClient;
 
@@ -17,6 +17,8 @@ namespace domain.client
         {
             this.httpClient = client;
         }
+
+        public void Dispose() => ((IDisposable)this.httpClient).Dispose();
 
         #region Domain Command Path
 
