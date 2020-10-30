@@ -1,4 +1,5 @@
 ﻿using domain.contract;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -16,10 +17,15 @@ namespace domain.host.controllers
         }
 
         [HttpPost, Route("do")]
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(DoSomethingResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DomainError), StatusCodes.Status400BadRequest)]
         public Task<IActionResult> DoSomething([FromBody] DoSomethingRequest request)
             => this.InvokeServiceCommand(() => this.domainService.DoSomething(request));
 
         [HttpPost]
+        [ProducesResponseType(typeof(DomainEntityResult), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(DomainError), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateEntity([FromBody] CreateDomainEntityRequest request)
         {
             try
@@ -47,14 +53,19 @@ namespace domain.host.controllers
         }
 
         [HttpGet, Route("{id:Guid}")]
+        [ProducesResponseType(typeof(DomainEntityResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetEntity([FromRoute] Guid id)
             => this.InvokeServiceCommandAtRequiredResource(() => this.domainService.GetEntity(id));
 
         [HttpGet]
+        [ProducesResponseType(typeof(DomainEntityCollectionResult), StatusCodes.Status200OK)]
         public Task<IActionResult> GetEntities()
             => this.InvokeServiceCommand(() => this.domainService.GetEntities());
 
         [HttpDelete, Route("{id:Guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IActionResult> DeleteEntity([FromRoute] Guid id)
             => this.InvokeDeleteCommand(() => this.domainService.DeleteEntity(id));
     }

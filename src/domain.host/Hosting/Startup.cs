@@ -32,6 +32,7 @@ namespace domain.host
             services.AddDbContext<DomainDbContext>(opts => opts.UseSqlite(this.Configuration.GetConnectionString("DomainDatabase")));
             services.AddControllers();
             services.AddHostedService<MigrateDatabaseService>();
+            services.AddSwaggerDocument();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,6 +45,8 @@ namespace domain.host
 
             app.UseRouting();
             app.UseEndpoints(c => c.MapControllers());
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
         }
     }
 }
