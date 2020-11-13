@@ -20,7 +20,7 @@ namespace domain.service
             if (createDomainEntity is null)
                 throw new ArgumentNullException(nameof(createDomainEntity));
 
-            var entity = createDomainEntity.MapToDomain();
+            var entity = createDomainEntity.MapFromRequest();
             await this.model.Entities.Add(entity);
             await this.model.SaveChanges();
 

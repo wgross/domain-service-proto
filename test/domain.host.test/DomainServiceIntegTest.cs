@@ -1,6 +1,8 @@
 using domain.client;
+using domain.client.gprc;
 using domain.contract;
 using domain.contract.test;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -10,12 +12,13 @@ namespace domain.host.test
     {
         private readonly DomainServiceTestHost host;
         private readonly DomainClient domainClient;
+        private readonly ServiceProvider clientServiceProvider;
+        private ServiceCollection clientServices;
 
         public DomainServiceIntegTest()
         {
             this.host = new DomainServiceTestHost();
-            this.domainClient = new DomainClient(this.host.CreateClient());
-            this.DomainContract = this.domainClient;
+            this.DomainContract = this.domainClient = new DomainClient(this.host.CreateClient());
         }
 
         #region Domain Command Path
@@ -33,10 +36,7 @@ namespace domain.host.test
         public Task DomainClient_creates_entity() => base.DomainContract_creates_entity();
 
         [Fact]
-        public async Task DomainClient_creating_entity_fails_on_null_data()
-        {
-            await this.DomainContract_creating_entity_fails_on_null_request();
-        }
+        public Task DomainClient_creating_entity_fails_on_null_data() => base.DomainContract_creating_entity_fails_on_null_request();
 
         [Fact]
         public async Task DomainClient_deletes_entity_by_id()
@@ -51,10 +51,8 @@ namespace domain.host.test
         }
 
         [Fact]
-        public async Task DomainClient_deleting_entity_by_id_returns_false_on_missing_entity()
-        {
-            await base.DomainContract_deleting_entity_by_id_returns_false_on_missing_entity();
-        }
+        public Task DomainClient_deleting_entity_by_id_returns_false_on_missing_entity()
+            => base.DomainContract_deleting_entity_by_id_returns_false_on_missing_entity();
 
         #endregion Domain Command Path
 

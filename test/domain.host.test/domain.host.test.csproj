@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\domain.client.gprc\domain.client.gprc.csproj" />
     <ProjectReference Include="..\..\src\domain.client\domain.client.csproj" />
     <ProjectReference Include="..\..\src\domain.host\domain.host.csproj" />
     <ProjectReference Include="..\domain.contract.test\domain.contract.test.csproj" />

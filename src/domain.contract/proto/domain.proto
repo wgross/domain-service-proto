@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+option csharp_namespace = "domain.contract.proto";
+
+package domain;
+
+service GDomainService {
+  
+	rpc Create (GCreateDomainEntityRequest) returns (GCreateDomainEntityResponse);
+
+	rpc Delete (GDeleteDomainEntityRequest) returns (GDeleteDomainEntityResponse);
+
+	rpc Subscribe (GSubscribeDomainEvent) returns (stream GDomainEntityEvent);
+}
+
+message GCreateDomainEntityRequest {
+
+	string text = 1;
+}
+
+message GCreateDomainEntityResponse {
+
+	string id = 1;
+
+	string text = 2;
+}
+
+message GDeleteDomainEntityRequest {
+
+	string id = 1;
+}
+
+message GDeleteDomainEntityResponse {
+
+	bool success = 1;
+}
+
+message GSubscribeDomainEvent {}
+
+message GDomainEntityEvent {
+	
+	string id = 1;
+
+	enum EventType {
+		added = 0;
+        modified = 1;
+        deleted = 2;
+	};
+
+	EventType eventType = 2;
+}
+
+
