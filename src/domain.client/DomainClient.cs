@@ -1,4 +1,4 @@
-﻿using domain.contract;
+﻿using Domain.Contract;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace domain.client
+namespace Domain.Client
 {
     public sealed class DomainClient : IDomainService, IDisposable
     {
@@ -26,7 +26,7 @@ namespace domain.client
         {
             var response = await this.httpClient.PostAsJsonAsync("/domain", createDomainEntity);
             if (response.IsSuccessStatusCode)
-                return await response.Content.ReadAsAsync<domain.contract.DomainEntityResult>();
+                return await response.Content.ReadAsAsync<Domain.Contract.DomainEntityResult>();
             else throw OnError(await response.Content.ReadAsAsync<DomainError>());
         }
 
@@ -46,7 +46,7 @@ namespace domain.client
         {
             var response = await this.httpClient.PostAsJsonAsync("/domain/do", rq);
             if (response.IsSuccessStatusCode)
-                return await response.Content.ReadAsAsync<domain.contract.DoSomethingResult>();
+                return await response.Content.ReadAsAsync<Domain.Contract.DoSomethingResult>();
             else throw OnError(await response.Content.ReadAsAsync<DomainError>());
         }
 
@@ -67,14 +67,14 @@ namespace domain.client
         {
             var response = await this.httpClient.GetAsync($"/domain");
 
-            return await response.Content.ReadAsAsync<domain.contract.DomainEntityCollectionResult>();
+            return await response.Content.ReadAsAsync<Domain.Contract.DomainEntityCollectionResult>();
         }
 
         public async Task<DomainEntityResult> GetEntity(Guid id)
         {
             var response = await this.httpClient.GetAsync($"/domain/{id}");
 
-            return await response.Content.ReadAsAsync<domain.contract.DomainEntityResult>();
+            return await response.Content.ReadAsAsync<Domain.Contract.DomainEntityResult>();
         }
 
         #endregion Domain Query Path

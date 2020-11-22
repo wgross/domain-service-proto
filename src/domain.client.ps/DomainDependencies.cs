@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 
-namespace domain.client.ps
+namespace Domain.Client.PS
 {
     public static class DomainDependencies
     {

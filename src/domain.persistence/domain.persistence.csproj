@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <AssemblyName>Domain.Persistence</AssemblyName>
+    <RootNamespace>Domain.Persistence</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -3,9 +3,9 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using domain.persistence.EF;
+using Domain.Persistence.EF;
 
-namespace domain.persistence.Migrations
+namespace Domain.Persistence.Migrations
 {
     [DbContext(typeof(DomainDbContext))]
     partial class DomainDbContextModelSnapshot : ModelSnapshot

@@ -2,7 +2,7 @@
 using System.Management.Automation;
 using Xunit;
 
-namespace domain.client.ps.test
+namespace Domain.Client.PS.Test
 {
     [Collection("UsesPowershell")]
     public abstract class DomainClientCmdletTestBase

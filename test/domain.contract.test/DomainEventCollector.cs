@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace domain.contract.test
+namespace Domain.Contract.Test
 {
     public class DomainEventCollector : IObserver<DomainEntityEvent>
     {

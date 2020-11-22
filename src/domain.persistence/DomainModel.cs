@@ -1,9 +1,9 @@
-﻿using domain.model;
-using domain.persistence.EF;
+﻿using Domain.Model;
+using Domain.Persistence.EF;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Threading.Tasks;
 
-namespace domain.persistence
+namespace Domain.Persistence
 {
     public sealed class DomainModel : IDomainModel
     {

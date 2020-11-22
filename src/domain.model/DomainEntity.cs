@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace domain.model
+namespace Domain.Model
 {
     public class DomainEntity
     {

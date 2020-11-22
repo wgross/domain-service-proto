@@ -1,4 +1,4 @@
-﻿namespace domain.contract
+﻿namespace Domain.Contract
 {
     public sealed class DoSomethingRequest
     {

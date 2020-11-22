@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Domain.Contract.Test</AssemblyName>
+    <RootNamespace>Domain.Contract.Test</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

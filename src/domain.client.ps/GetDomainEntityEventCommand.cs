@@ -1,12 +1,12 @@
-﻿using domain.contract;
-using domain.host.controllers;
+﻿using Domain.Contract;
+using Domain.Host.Controllers;
 using System;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace domain.client.ps
+namespace Domain.Client.PS
 {
     [Cmdlet(VerbsCommon.Get, nameof(DomainEntityEvent))]
     public sealed class GetDomainEntityEventCommand : PSCmdlet

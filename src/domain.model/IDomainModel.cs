@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace domain.model
+namespace Domain.Model
 {
     public interface IDomainModel : IDisposable
     {

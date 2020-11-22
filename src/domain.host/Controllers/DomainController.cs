@@ -1,10 +1,10 @@
-﻿using domain.contract;
+﻿using Domain.Contract;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
-namespace domain.host.controllers
+namespace Domain.Host.Controllers
 {
     [Route("domain")]
     public sealed class DomainController : ControllerBase

@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5</TargetFramework>
+    <AssemblyName>Domain.Host</AssemblyName>
+    <RootNamespace>Domain.Host</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

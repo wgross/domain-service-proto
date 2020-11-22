@@ -1,12 +1,12 @@
-﻿using domain.contract;
-using domain.contract.proto;
+﻿using Domain.Contract;
+using Domain.Contract.Proto;
 using System;
 
-namespace domain.host.GrpcServices
+namespace Domain.Host.GrpcServices
 {
     public static class GrpcMapper
     {
-        public static CreateDomainEntityRequest MapFromMessage(this contract.proto.GCreateDomainEntityRequest rq)
+        public static CreateDomainEntityRequest MapFromMessage(this Contract.Proto.GCreateDomainEntityRequest rq)
         {
             return new CreateDomainEntityRequest
             {
@@ -14,12 +14,12 @@ namespace domain.host.GrpcServices
             };
         }
 
-        public static Guid MapFromMessage(this contract.proto.GDeleteDomainEntityRequest rq)
+        public static Guid MapFromMessage(this Contract.Proto.GDeleteDomainEntityRequest rq)
         {
             return Guid.Parse(rq.Id);
         }
 
-        public static contract.proto.GCreateDomainEntityResponse MapToMessage(this DomainEntityResult response)
+        public static Contract.Proto.GCreateDomainEntityResponse MapToMessage(this DomainEntityResult response)
         {
             return new GCreateDomainEntityResponse
             {

@@ -1,11 +1,11 @@
-﻿using domain.contract;
+﻿using Domain.Contract;
 using Grpc.Net.Client;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using static domain.contract.proto.GDomainService;
+using static Domain.Contract.Proto.GDomainService;
 
-namespace domain.client.gprc
+namespace Domain.Client.Gprc
 {
     public class GrpcDomainClient : GDomainServiceClient, IDomainService
     {

@@ -1,9 +1,12 @@
-using domain.contract;
-using domain.host.test;
+using Domain.Contract;
+using Domain.Host.Test;
+using System;
+using System.Linq;
+using System.Management.Automation;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace domain.client.ps.test
+namespace Domain.Client.PS.Test
 {
     public class GetDomainEntityEventCommandTest : DomainClientCmdletTestBase
     {
@@ -24,7 +27,7 @@ namespace domain.client.ps.test
             async Task<DomainEntityResult> ArrangeCreateEntity()
             {
                 using var client = new DomainClient(this.host.CreateClient());
-                return await client.CreateEntity(new contract.CreateDomainEntityRequest
+                return await client.CreateEntity(new CreateDomainEntityRequest
                 {
                     Text = "text-1"
                 });
@@ -32,16 +35,24 @@ namespace domain.client.ps.test
 
             // ACT
 
+            PSObject[] result = default;
+
             var actTask = Task.Run(() =>
             {
-                var result = this.PowerShell.AddCommand("Get-DomainEntityEvent").Invoke();
+                result = this.PowerShell.AddCommand("Get-DomainEntityEvent").Invoke().ToArray();
             });
 
-            await ArrangeCreateEntity();
+            var arrangedEntity = await ArrangeCreateEntity();
 
             this.PowerShell.Stop();
 
             await actTask;
+
+            // ASSERT
+
+            Assert.IsType<DomainEntityEvent>(result.Single().ImmediateBaseObject);
+            Assert.Equal(arrangedEntity.Id, (Guid)result.Single().Properties[nameof(DomainEntityEvent.Id)].Value);
+            Assert.Equal(DomainEntityEventTypes.Added, (DomainEntityEventTypes)result.Single().Properties[nameof(DomainEntityEvent.EventType)].Value);
         }
     }
 }

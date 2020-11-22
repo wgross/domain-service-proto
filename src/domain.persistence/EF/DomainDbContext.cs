@@ -1,7 +1,7 @@
-﻿using domain.model;
+﻿using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace domain.persistence.EF
+namespace Domain.Persistence.EF
 {
     public class DomainDbContext : DbContext
     {

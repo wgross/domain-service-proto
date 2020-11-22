@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace domain.contract.test
+namespace Domain.Contract.Test
 {
     public abstract class DomainServiceContractTestBase
     {
@@ -13,14 +13,14 @@ namespace domain.contract.test
         {
             // ACT
 
-            var result = await this.DomainContract.DoSomething(new domain.contract.DoSomethingRequest
+            var result = await this.DomainContract.DoSomething(new Domain.Contract.DoSomethingRequest
             {
                 Data = "data"
             });
 
             // ASSERT
 
-            Assert.IsType<domain.contract.DoSomethingResult>(result);
+            Assert.IsType<Domain.Contract.DoSomethingResult>(result);
         }
 
         protected async Task DomainContract_doing_someting_fails_on_missing_body()
@@ -166,20 +166,22 @@ namespace domain.contract.test
         {
             // ARRANGE
 
-            var events = new DomainEventCollector();
+            var observer = new DomainEventCollector();
 
             // ACT
 
-            var subscription = await this.DomainContract.Subscribe(events);
+            var subscription = await this.DomainContract.Subscribe(observer);
 
             await this.DomainContract.DeleteEntity(entityId);
+
+            await Task.Delay(1000);
 
             subscription.Dispose();
 
             // ASSERT
 
-            Assert.Equal(DomainEntityEventTypes.Deleted, events.Collected[0].EventType);
-            Assert.Equal(entityId, events.Collected[0].Id);
+            Assert.Equal(DomainEntityEventTypes.Deleted, observer.Collected[0].EventType);
+            Assert.Equal(entityId, observer.Collected[0].Id);
         }
     }
 }

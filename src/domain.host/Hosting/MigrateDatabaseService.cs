@@ -1,12 +1,12 @@
-﻿using domain.model;
-using domain.persistence;
+﻿using Domain.Model;
+using Domain.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace domain.host.Hosting
+namespace Domain.Host.Hosting
 {
     public class MigrateDatabaseService : IHostedService
     {

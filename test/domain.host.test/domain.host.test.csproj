@@ -4,6 +4,10 @@
     <TargetFramework>net5</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <AssemblyName>Domain.Host.Test</AssemblyName>
+
+    <RootNamespace>Domain.Host.Test</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

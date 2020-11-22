@@ -1,4 +1,4 @@
-﻿namespace domain.model
+﻿namespace Domain.Model
 {
     public enum DomainEventValues
     {

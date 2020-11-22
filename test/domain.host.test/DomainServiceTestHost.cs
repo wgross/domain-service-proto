@@ -1,4 +1,4 @@
-﻿using domain.persistence.EF;
+﻿using Domain.Persistence.EF;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -12,7 +12,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace domain.host.test
+namespace Domain.Host.Test
 {
     public sealed class DomainServiceTestHost : WebApplicationFactory<Startup>
     {

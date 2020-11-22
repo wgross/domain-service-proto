@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Domain.Model</AssemblyName>
+    <RootNamespace>Domain.Model</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

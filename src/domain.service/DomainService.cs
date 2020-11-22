@@ -1,10 +1,10 @@
-﻿using domain.contract;
-using domain.model;
+﻿using Domain.Contract;
+using Domain.Model;
 using System;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
-namespace domain.service
+namespace Domain.Service
 {
     public class DomainService : IDomainService
     {

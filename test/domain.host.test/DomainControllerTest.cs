@@ -1,11 +1,11 @@
-﻿using domain.contract;
+﻿using Domain.Contract;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace domain.host.controllers.test
+namespace Domain.Host.Controllers.Test
 {
     /// <summary>
     /// At the controller level a HTTP-conformant bahavior is enforced.

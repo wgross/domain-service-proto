@@ -1,10 +1,10 @@
-﻿using domain.contract;
-using domain.model;
+﻿using Domain.Contract;
+using Domain.Model;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace domain.service
+namespace Domain.Service
 {
     public static class DomainMapper
     {

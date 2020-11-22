@@ -17,6 +17,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <AssemblyName>Domain.Client</AssemblyName>
+    <RootNamespace>Domain.Client</RootNamespace>
   </PropertyGroup>
 
 </Project>

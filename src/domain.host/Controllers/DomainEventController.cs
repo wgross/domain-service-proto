@@ -1,5 +1,5 @@
-﻿using domain.contract;
-using domain.host.controllers;
+﻿using Domain.Contract;
+using Domain.Host.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Text.Json;
@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace domain.host.controllers
+namespace Domain.Host.Controllers
 {
     [Route("domain/events")]
     public sealed class DomainEventController : ControllerBase, IObserver<DomainEntityEvent>

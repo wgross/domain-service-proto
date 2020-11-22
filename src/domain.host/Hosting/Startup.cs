@@ -1,10 +1,10 @@
-using domain.contract;
-using domain.host.GrpcServices;
-using domain.host.Hosting;
-using domain.model;
-using domain.persistence;
-using domain.persistence.EF;
-using domain.service;
+using Domain.Contract;
+using Domain.Host.GrpcServices;
+using Domain.Host.Hosting;
+using Domain.Model;
+using Domain.Persistence;
+using Domain.Persistence.EF;
+using Domain.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace domain.host
+namespace Domain.Host
 {
     public class Startup
     {
@@ -51,6 +51,13 @@ namespace domain.host
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            // allow requests from domain.ui
+            // if this fails move up in configuration order
+            app.UseCors(policy => policy
+               .AllowAnyOrigin()//.WithOrigins("http://localhost:6000", "https://localhost:6001")
+               .AllowAnyMethod()
+               .AllowAnyHeader());
 
             // web api
             app.UseRouting();

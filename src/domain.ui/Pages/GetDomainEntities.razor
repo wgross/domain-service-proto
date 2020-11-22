@@ -1,0 +1,39 @@
+﻿@page "/domain/entities"
+@using Domain.Contract;
+@inject IDomainService DomainClient
+
+<h1>Fetch Domain Entities</h1>
+
+@if (entities is null)
+{
+    <p><em>Loading Domain Entities...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Text</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in entities.Entities)
+            {
+                <tr>
+                    <td>@e.Id</td>
+                    <td>@e.Text</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private DomainEntityCollectionResult entities;
+
+    protected override async Task OnInitializedAsync()
+    {
+        entities = await DomainClient.GetEntities();
+    }
+}

@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace domain.contract
+namespace Domain.Contract
 {
     public interface IDomainService
     {

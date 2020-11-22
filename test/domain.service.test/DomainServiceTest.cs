@@ -1,5 +1,5 @@
-using domain.contract.test;
-using domain.model;
+using Domain.Contract.Test;
+using Domain.Model;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace domain.service.test
+namespace Domain.Service.Test
 {
     [Collection(nameof(DomainService))]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]

@@ -1,9 +1,9 @@
-﻿using domain.contract;
+﻿using Domain.Contract;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
-namespace domain.host.controllers
+namespace Domain.Host.Controllers
 {
     /// <summary>
     /// These extensions provide an opinonated implementation of controller endppoint behavior.

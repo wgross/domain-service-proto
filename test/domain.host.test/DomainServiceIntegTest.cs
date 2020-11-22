@@ -1,12 +1,12 @@
-using domain.client;
-using domain.client.gprc;
-using domain.contract;
-using domain.contract.test;
+using Domain.Client;
+using Domain.Client.Gprc;
+using Domain.Contract;
+using Domain.Contract.Test;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace domain.host.test
+namespace Domain.Host.Test
 {
     public class DomainServiceIntegTest : DomainServiceContractTestBase
     {

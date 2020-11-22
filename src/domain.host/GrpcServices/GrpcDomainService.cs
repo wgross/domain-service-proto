@@ -1,10 +1,10 @@
-﻿using domain.contract;
-using domain.contract.proto;
+﻿using Domain.Contract;
+using Domain.Contract.Proto;
 using Grpc.Core;
 using System.Threading.Tasks;
-using static domain.contract.proto.GDomainService;
+using static Domain.Contract.Proto.GDomainService;
 
-namespace domain.host.GrpcServices
+namespace Domain.Host.GrpcServices
 {
     public class GrpcDomainService : GDomainServiceBase
     {

@@ -12,6 +12,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Domain.Service</AssemblyName>
+    <RootNamespace>Domain.Service</RootNamespace>
   </PropertyGroup>
 
 </Project>

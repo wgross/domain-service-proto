@@ -1,5 +1,5 @@
-using domain.model;
-using domain.persistence.EF;
+using Domain.Model;
+using Domain.Persistence.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace domain.persistence.test
+namespace Domain.Persistence.Test
 {
     public class DomainModelTest : IDisposable
     {

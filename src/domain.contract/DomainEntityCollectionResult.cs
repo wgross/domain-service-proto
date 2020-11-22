@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace domain.contract
+namespace Domain.Contract
 {
     public class DomainEntityCollectionResult
     {

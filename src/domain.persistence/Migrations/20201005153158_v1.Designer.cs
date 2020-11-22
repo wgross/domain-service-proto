@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using domain.persistence.EF;
+using Domain.Persistence.EF;
 
-namespace domain.persistence.Migrations
+namespace Domain.Persistence.Migrations
 {
     [DbContext(typeof(DomainDbContext))]
     [Migration("20201005153158_v1")]

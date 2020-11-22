@@ -1,8 +1,8 @@
-﻿using domain.contract;
-using domain.contract.proto;
+﻿using Domain.Contract;
+using Domain.Contract.Proto;
 using System;
 
-namespace domain.client.gprc
+namespace Domain.Client.Gprc
 {
     public static class GrpcMapper
     {

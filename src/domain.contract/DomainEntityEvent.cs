@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace domain.contract
+namespace Domain.Contract
 {
     public enum DomainEntityEventTypes
     {
