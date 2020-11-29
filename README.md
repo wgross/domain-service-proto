@@ -1,10 +1,10 @@
-# domain-service-proto is a sandbox project to explore implemeation patterns of a web service world
+# domain-service-proto is a sandbox project to explore implementation patterns of a web service world
 
 The center of this sandbox project is a minimal domain service providing CRUD operations to a single entity. 
 With starting there I'm exploring opinions and assumptions how to structure the code best to achieve non-functional goals like testability.
 Also the service is surrounded by other software components like user interfaces or services.
 
-## Opinion 1: The controllers of the web service must have technical responsibilties only
+## Opinion 1: The controllers of the web service must have technical responsibilities only
 
 The web-controllers ony translate the http protoicol to the call to the internal business service which implements the actual domain functions.
 To avoid unnecessary mappings the business service receives its parameters and returns its responses in simple classes which can be uses as DTOs by the web controllers. 
@@ -15,7 +15,7 @@ Theses class are moved to a shared project which provides an intercace contract 
 For ease of use the domain service project provides two client libraries which allow access to the service using http+json and Grpc. 
 Both clients implement the very same interface contract as the business service does. 
 
-## Opinion 3: The implementauion of the intercace contract must show identical behavope in cliuent and business service
+## Opinion 3: The implementation of the interfac contract must show identical behavor in cluent and business service
 
 To achieve this goal the test cases for clients an business service share the code of the Act and Assert phases of the tests. 
 They might differ in the Arrange phase deoedning on the test subject.
