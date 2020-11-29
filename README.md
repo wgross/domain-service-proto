@@ -32,6 +32,6 @@ Also an OpenId description and a swagger UI is provided by the service.
 It is easy to achieve that with any web service by implementation a script module using the Invoke-RestMethod commandlet. 
 But supporting more technically complex calling scenarios (ex. event streaming) requires some custom implementation in C#. 
 
-**Opinion 6: Behavior of all components should be observable with logfile wich is easily queriable
+**Opinion 6: Behavior of all components should be observable with logfile wich is easily queriable**
 
 => log entries are compressed JSON, one entry in each line of the logfile.
