@@ -5,9 +5,7 @@ namespace Domain.Client.PS
 {
     public static class DomainDependencies
     {
-        public static Func<Uri, DomainClient> DomainClientFactory { get; set; } = baseAddress => new DomainClient(new HttpClient
-        {
-            BaseAddress = baseAddress
-        });
+        public static Func<Uri, JsonDomainClient> DomainClientFactory { get; set; } =
+            baseAddress => new JsonDomainClient(new HttpClient(), new JsonDomainClientOptions { DomainService = baseAddress });
     }
 }

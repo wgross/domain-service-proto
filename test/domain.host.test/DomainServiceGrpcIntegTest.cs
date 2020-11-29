@@ -10,6 +10,7 @@ using Xunit;
 
 namespace Domain.Host.Test
 {
+    [Collection(nameof(Service.DomainService))]
     public class DomainServiceGrpcIntegTest : DomainServiceContractTestBase, IDisposable
     {
         private class ResponseVersionHandler : DelegatingHandler
@@ -74,11 +75,13 @@ namespace Domain.Host.Test
 
         #endregion Dispose
 
-        [Fact]
-        public Task DomainServiceGrpcClient_creates_entity() => base.DomainContract_creates_entity();
+        #region Domain Command Path
 
         [Fact]
-        public Task DomainServiceGrpcClient_creating_entity_failed_on_null_request()
+        public Task GrpcDomainClient_creates_entity() => base.DomainContract_creates_entity();
+
+        [Fact]
+        public Task GrpcDomainClient_creating_entity_failed_on_null_request()
             => base.DomainContract_creating_entity_fails_on_null_request();
 
         private Task<DomainEntityResult> ArrangeDomainEntity()
@@ -90,7 +93,33 @@ namespace Domain.Host.Test
         }
 
         [Fact]
-        public async Task DomainServiceGrpcClient_deletes_entity_by_id()
+        public async Task GrpcDomainClient_updates_entity()
+        {
+            // ARRANGE
+
+            var entity = await this.ArrangeDomainEntity();
+
+            // ACT
+
+            await this.DomainContract_updates_entity(entity.Id);
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_updating_entity_fails_on_unknown_id()
+        {
+            // ACT
+
+            await this.DomainContract_updating_entity_fails_on_unknown_id();
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_updating_entity_fails_on_missing_body()
+        {
+            await this.DomainContract_updating_entity_fails_on_missing_body();
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_deletes_entity_by_id()
         {
             // ARRANGE
 
@@ -102,7 +131,85 @@ namespace Domain.Host.Test
         }
 
         [Fact]
-        public Task DomainServiceGrpcClient_deleting_entity_by_id_returns_false_on_missing_entity()
-          => base.DomainContract_deleting_entity_by_id_returns_false_on_missing_entity();
+        public Task GrpcDomainClient_deleting_entity_by_id_returns_false_on_missing_entity()
+          => base.DomainContract_deleting_entity_returns_false_on_missing_entity();
+
+        #endregion Domain Command Path
+
+        #region Domain Query Path
+
+        [Fact]
+        public async Task GrpcDomainClient_reads_entity_by_id()
+        {
+            // ARRANGE
+
+            var entity = await this.ArrangeDomainEntity();
+
+            // ACT
+
+            await base.DomainContract_reads_entity_by_id(entity.Id);
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_reading_entity_by_id_fails_on_unknown_id()
+        {
+            // ACT
+
+            await base.DomainContract_reading_entity_by_id_fails_on_unknown_id();
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_reads_entities()
+        {
+            // ARRANGE
+
+            var entity = await this.ArrangeDomainEntity();
+
+            // ACT
+
+            await base.DomainContract_reads_entities(entity.Id);
+        }
+
+        #endregion Domain Query Path
+
+        #region Domain Events
+
+        [Fact]
+        public async Task GrpcDomainClient_notifies_on_create()
+        {
+            // ACT
+
+            await base.DomainContract_notifies_on_create();
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_notifies_on_delete()
+        {
+            // ARRANGE
+
+            var entity = await this.ArrangeDomainEntity();
+
+            await Task.Delay(500);
+
+            // ACT
+
+            await base.DomainContract_notifies_on_delete(entity.Id);
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_notifies_on_update()
+        {
+            // ARRANGE
+
+            var entity = await this.ArrangeDomainEntity();
+
+            await Task.Delay(500);
+
+            // ACT
+
+            await base.DomainContract_notifies_on_update(entity.Id);
+        }
+
+        #endregion Domain Events
     }
 }

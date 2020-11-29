@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Domain.Contract
@@ -9,6 +8,8 @@ namespace Domain.Contract
         Task<DoSomethingResult> DoSomething(DoSomethingRequest rq);
 
         Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity);
+
+        Task<DomainEntityResult> UpdateEntity(Guid id, UpdateDomainEntityRequest updateDomainEntity);
 
         Task<DomainEntityResult> GetEntity(Guid id);
 

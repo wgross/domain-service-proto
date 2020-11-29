@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Model;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -74,6 +75,48 @@ namespace Domain.Contract.Test
             Assert.Equal("createDomainEntity", result.ParamName);
         }
 
+        protected async Task DomainContract_updates_entity(Guid entityId)
+        {
+            // ACT
+
+            var result = await this.DomainContract.UpdateEntity(entityId, new UpdateDomainEntityRequest
+            {
+                Text = "test-changed"
+            });
+
+            // ASSERT
+
+            Assert.Equal("test-changed", result.Text);
+            Assert.Equal(entityId, result.Id);
+        }
+
+        protected async Task DomainContract_updating_entity_fails_on_missing_body()
+        {
+            // ACT
+
+            var result = await Assert.ThrowsAsync<ArgumentNullException>(() => this.DomainContract.UpdateEntity(Guid.NewGuid(), null));
+
+            // ASSERT
+
+            Assert.Equal("updateDomainEntity", result.ParamName);
+        }
+
+        protected async Task DomainContract_updating_entity_fails_on_unknown_id()
+        {
+            var entityId = Guid.NewGuid();
+
+            // ACT
+
+            var result = await Assert.ThrowsAsync<DomainEntityMissingException>(() => this.DomainContract.UpdateEntity(entityId, new UpdateDomainEntityRequest
+            {
+                Text = "text-changed"
+            }));
+
+            // ASSERT
+
+            Assert.Equal($"{nameof(DomainEntity)}(id={entityId}) not found", result.Message);
+        }
+
         protected async Task DomainContract_reads_entity_by_id(Guid id)
         {
             // ACT
@@ -86,14 +129,14 @@ namespace Domain.Contract.Test
             Assert.Equal(id, result.Id);
         }
 
-        public async Task DomainContract_deletes_entity_by_id(Guid entityId)
+        protected async Task DomainContract_deletes_entity_by_id(Guid entityId)
         {
             // ACT
 
             await this.DomainContract.DeleteEntity(entityId);
         }
 
-        public async Task DomainContract_reads_entities(Guid id)
+        protected async Task DomainContract_reads_entities(Guid id)
         {
             // ACT
 
@@ -106,7 +149,7 @@ namespace Domain.Contract.Test
             Assert.Equal("test", result.Entities.Single().Text);
         }
 
-        public async Task DomainContract_reading_entity_by_id_fails_on_unknown_id()
+        protected async Task DomainContract_reading_entity_by_id_fails_on_unknown_id()
         {
             // ACT
 
@@ -117,7 +160,7 @@ namespace Domain.Contract.Test
             Assert.Null(result);
         }
 
-        public async Task DomainContract_notifies_on_create()
+        protected async Task DomainContract_notifies_on_create()
         {
             // ARRANGE
 
@@ -143,15 +186,14 @@ namespace Domain.Contract.Test
             subscription.Dispose();
 
             // ASSERT
-
-            Assert.Equal(DomainEntityEventTypes.Added, observer.Collected[0].EventType);
-            Assert.Equal(createdEntities[0].Id, observer.Collected[0].Id);
-
-            Assert.Equal(DomainEntityEventTypes.Added, observer.Collected[1].EventType);
-            Assert.Equal(createdEntities[1].Id, observer.Collected[1].Id);
+            // order ids to make test more robust
+            Assert.Equal(
+                expected: createdEntities.Select(e => e.Id).OrderBy(_ => _),
+                actual: observer.Collected.Select(c => c.Id).OrderBy(_ => _));
+            Assert.All(observer.Collected, c => Assert.Equal(DomainEntityEventTypes.Added, c.EventType));
         }
 
-        public async Task DomainContract_deleting_entity_by_id_returns_false_on_missing_entity()
+        protected async Task DomainContract_deleting_entity_returns_false_on_missing_entity()
         {
             // ACT
 
@@ -162,7 +204,7 @@ namespace Domain.Contract.Test
             Assert.False(result);
         }
 
-        public async Task DomainContract_notifies_on_delete(Guid entityId)
+        protected async Task DomainContract_notifies_on_delete(Guid entityId)
         {
             // ARRANGE
 
@@ -181,6 +223,31 @@ namespace Domain.Contract.Test
             // ASSERT
 
             Assert.Equal(DomainEntityEventTypes.Deleted, observer.Collected[0].EventType);
+            Assert.Equal(entityId, observer.Collected[0].Id);
+        }
+
+        protected async Task DomainContract_notifies_on_update(Guid entityId)
+        {
+            // ARRANGE
+
+            var observer = new DomainEventCollector();
+
+            // ACT
+
+            var subscription = await this.DomainContract.Subscribe(observer);
+
+            await this.DomainContract.UpdateEntity(entityId, new UpdateDomainEntityRequest
+            {
+                Text = "test-changed"
+            });
+
+            await Task.Delay(1000);
+
+            subscription.Dispose();
+
+            // ASSERT
+
+            Assert.Equal(DomainEntityEventTypes.Modified, observer.Collected[0].EventType);
             Assert.Equal(entityId, observer.Collected[0].Id);
         }
     }

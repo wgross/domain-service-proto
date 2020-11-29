@@ -6,38 +6,66 @@ package Domain;
 
 service GDomainService {
   
-	rpc Create (GCreateDomainEntityRequest) returns (GCreateDomainEntityResponse);
+	rpc Create (GrpcCreateDomainEntityRequest) returns (GrpcDomainEntityResponse);
 
-	rpc Delete (GDeleteDomainEntityRequest) returns (GDeleteDomainEntityResponse);
+	rpc Get (GrpcGetDomainEntityByIdRequest) returns (GrpcDomainEntityResponse);
 
-	rpc Subscribe (GSubscribeDomainEvent) returns (stream GDomainEntityEvent);
+	rpc GetAll(GrpcGetAllDomainEntitiesRequest) returns (GrpcDomainEntityCollectionResponse);
+
+	rpc Update (GrpcUpdateDomainEntityRequest) returns (GrpcDomainEntityResponse);
+
+	rpc Delete (GrpcDeleteDomainEntityRequest) returns (GrpcDeleteDomainEntityResponse);
+
+	rpc Subscribe (GrpcSubscribeDomainEvent) returns (stream GrpcDomainEntityEvent);
 }
 
-message GCreateDomainEntityRequest {
 
-	string text = 1;
-}
-
-message GCreateDomainEntityResponse {
+message GrpcDomainEntityResponse {
 
 	string id = 1;
 
 	string text = 2;
 }
 
-message GDeleteDomainEntityRequest {
+message GrpcDomainEntityCollectionResponse {
+
+	repeated GrpcDomainEntityResponse entities = 1;
+}
+
+message GrpcCreateDomainEntityRequest {
+
+	string text = 1;
+}
+
+message GrpcGetDomainEntityByIdRequest {
 
 	string id = 1;
 }
 
-message GDeleteDomainEntityResponse {
+message GrpcGetAllDomainEntitiesRequest {
+
+}
+
+message GrpcUpdateDomainEntityRequest {
+
+	string id = 1;
+
+	string text = 2;
+}
+
+message GrpcDeleteDomainEntityRequest {
+
+	string id = 1;
+}
+
+message GrpcDeleteDomainEntityResponse {
 
 	bool success = 1;
 }
 
-message GSubscribeDomainEvent {}
+message GrpcSubscribeDomainEvent {}
 
-message GDomainEntityEvent {
+message GrpcDomainEntityEvent {
 	
 	string id = 1;
 

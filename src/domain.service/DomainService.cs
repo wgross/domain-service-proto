@@ -33,6 +33,28 @@ namespace Domain.Service
             return entity.MapToResponse();
         }
 
+        public async Task<DomainEntityResult> UpdateEntity(Guid id, UpdateDomainEntityRequest updateDomainEntity)
+        {
+            if (updateDomainEntity is null)
+                throw new ArgumentNullException(nameof(updateDomainEntity));
+
+            var entity = await this.model.Entities.FindById(id);
+            if (entity is null)
+                throw new DomainEntityMissingException($"{nameof(DomainEntity)}(id={id}) not found");
+
+            updateDomainEntity.MapToEntity(entity);
+
+            await this.model.SaveChanges();
+
+            this.Publish(new DomainEntityEvent
+            {
+                Id = entity.Id,
+                EventType = DomainEntityEventTypes.Modified
+            });
+
+            return entity.MapToResponse();
+        }
+
         public async Task<bool> DeleteEntity(Guid entityId)
         {
             var entity = await this.model.Entities.FindById(entityId);

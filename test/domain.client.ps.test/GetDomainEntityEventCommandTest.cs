@@ -16,7 +16,7 @@ namespace Domain.Client.PS.Test
         {
             this.host = new DomainServiceTestHost();
 
-            DomainDependencies.DomainClientFactory = _ => new DomainClient(this.host.CreateClient());
+            DomainDependencies.DomainClientFactory = _ => new JsonDomainClient(this.host.CreateClient(), new JsonDomainClientOptions { DomainService = this.host.Server.BaseAddress });
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace Domain.Client.PS.Test
 
             async Task<DomainEntityResult> ArrangeCreateEntity()
             {
-                using var client = new DomainClient(this.host.CreateClient());
+                using var client = new JsonDomainClient(this.host.CreateClient(), new JsonDomainClientOptions { DomainService = this.host.Server.BaseAddress });
                 return await client.CreateEntity(new CreateDomainEntityRequest
                 {
                     Text = "text-1"

@@ -18,6 +18,14 @@ namespace Domain.Host.Controllers
             {
                 return await action();
             }
+            catch (DomainEntityMissingException ex)
+            {
+                return new NotFoundObjectResult(new DomainError
+                {
+                    ErrorType = ex.GetType().Name,
+                    Message = ex.Message
+                });
+            }
             catch (ArgumentNullException ex)
             {
                 return controller.BadRequest(new DomainError
@@ -50,10 +58,21 @@ namespace Domain.Host.Controllers
         {
             return controller.MapExceptions(async () =>
             {
-                var response = await serviceCommand();
-                if (response is null)
-                    return controller.NotFound();
                 return controller.Ok(await serviceCommand());
+            });
+        }
+
+        public static Task<IActionResult> InvokeServiceCommandAtOptionalResource<C, R>(this C controller, Func<Task<R>> serviceCommand)
+            where C : ControllerBase
+            where R : class
+        {
+            return controller.MapExceptions(async () =>
+            {
+                return await serviceCommand() switch
+                {
+                    R r => controller.Ok(r),
+                    null => controller.NotFound()
+                };
             });
         }
 

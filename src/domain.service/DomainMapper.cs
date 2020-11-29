@@ -13,6 +13,12 @@ namespace Domain.Service
             Text = rq.Text
         };
 
+        public static DomainEntity MapToEntity(this UpdateDomainEntityRequest rq, DomainEntity e)
+        {
+            e.Text = rq.Text;
+            return e;
+        }
+
         public static DomainEntityResult MapToResponse(this DomainEntity entity) => new DomainEntityResult
         {
             Id = entity.Id,

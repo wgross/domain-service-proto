@@ -1,31 +1,36 @@
 ﻿using Domain.Contract;
 using Domain.Contract.Proto;
 using System;
+using System.Linq;
 
 namespace Domain.Client.Gprc
 {
     public static class GrpcMapper
     {
-        public static GCreateDomainEntityRequest ToGrpcMessage(this CreateDomainEntityRequest rq)
+        public static GrpcCreateDomainEntityRequest ToGrpcMessage(this CreateDomainEntityRequest rq)
         {
             if (rq is null)
                 return null;
 
-            return new GCreateDomainEntityRequest
+            return new GrpcCreateDomainEntityRequest
             {
                 Text = rq.Text
             };
         }
 
-        public static GDeleteDomainEntityRequest ToGrpcMessage(this Guid rq)
+        public static GrpcUpdateDomainEntityRequest ToGrpcMessage(this UpdateDomainEntityRequest rq, Guid id)
         {
-            return new GDeleteDomainEntityRequest
+            if (rq is null)
+                return null;
+
+            return new GrpcUpdateDomainEntityRequest
             {
-                Id = rq.ToString()
+                Id = id.ToString(),
+                Text = rq.Text
             };
         }
 
-        public static DomainEntityResult FromGrpcMessage(this GCreateDomainEntityResponse result)
+        public static DomainEntityResult FromGrpcMessage(this GrpcDomainEntityResponse result)
         {
             return new DomainEntityResult
             {
@@ -34,9 +39,26 @@ namespace Domain.Client.Gprc
             };
         }
 
-        public static bool FromGrpcMessage(this GDeleteDomainEntityResponse result)
+        public static DomainEntityCollectionResult FromGrpcMessage(this GrpcDomainEntityCollectionResponse result)
+        {
+            return new DomainEntityCollectionResult
+            {
+                Entities = result.Entities.Select(e => e.FromGrpcMessage()).ToArray()
+            };
+        }
+
+        public static bool FromGrpcMessage(this GrpcDeleteDomainEntityResponse result)
         {
             return result.Success;
+        }
+
+        public static DomainEntityEvent FromGrpcMessage(this GrpcDomainEntityEvent result)
+        {
+            return new DomainEntityEvent
+            {
+                Id = Guid.Parse(result.Id),
+                EventType = (DomainEntityEventTypes)result.EventType
+            };
         }
     }
 }

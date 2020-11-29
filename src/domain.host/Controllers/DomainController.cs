@@ -52,11 +52,17 @@ namespace Domain.Host.Controllers
             }
         }
 
+        [HttpPut, Route("{id:Guid}")]
+        [ProducesResponseType(typeof(DomainEntityResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DomainEntityResult), StatusCodes.Status200OK)]
+        public Task<IActionResult> UpdateEntity([FromRoute] Guid id, [FromBody] UpdateDomainEntityRequest updateEntityRequest)
+            => this.InvokeServiceCommandAtRequiredResource(() => this.domainService.UpdateEntity(id, updateEntityRequest));
+
         [HttpGet, Route("{id:Guid}")]
         [ProducesResponseType(typeof(DomainEntityResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetEntity([FromRoute] Guid id)
-            => this.InvokeServiceCommandAtRequiredResource(() => this.domainService.GetEntity(id));
+            => this.InvokeServiceCommandAtOptionalResource(() => this.domainService.GetEntity(id));
 
         [HttpGet]
         [ProducesResponseType(typeof(DomainEntityCollectionResult), StatusCodes.Status200OK)]
