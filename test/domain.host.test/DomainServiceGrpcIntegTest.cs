@@ -11,7 +11,7 @@ using Xunit;
 namespace Domain.Host.Test
 {
     [Collection(nameof(Service.DomainService))]
-    public class DomainServiceGrpcIntegTest : DomainServiceContractTestBase, IDisposable
+    public class DomainServiceGrpcIntegTest : DomainServiceIntegTestBase, IDisposable
     {
         private class ResponseVersionHandler : DelegatingHandler
         {
@@ -24,22 +24,35 @@ namespace Domain.Host.Test
             }
         }
 
-        private readonly DomainServiceTestHost host;
-        private readonly GrpcChannel channel;
-        private readonly GrpcDomainClient domainClient;
+        private GrpcChannel channel;
+        private GrpcDomainClient domainClient;
         private bool disposedValue;
 
         public DomainServiceGrpcIntegTest()
         {
-            this.host = new DomainServiceTestHost();
-
-            this.channel = GrpcChannel.ForAddress(this.host.Server.BaseAddress, new GrpcChannelOptions
-            {
-                HttpClient = this.host.CreateDefaultClient(new ResponseVersionHandler())
-            });
-
-            this.DomainContract = this.domainClient = new GrpcDomainClient(this.channel);
+            this.ArrangeNewClient();
         }
+
+        #region Arrange Test Environment
+
+        private void ArrangeNewClient()
+        {
+            this.channel = GrpcChannel.ForAddress(this.Host.Server.BaseAddress, new GrpcChannelOptions
+            {
+                HttpClient = this.Host.CreateDefaultClient(new ResponseVersionHandler())
+            });
+            this.domainClient = new GrpcDomainClient(this.channel, this.TokenProvider);
+        }
+
+        private Task<DomainEntityResult> ArrangeDomainEntity()
+        {
+            return this.domainClient.CreateEntity(new CreateDomainEntityRequest
+            {
+                Text = "test"
+            });
+        }
+
+        #endregion Arrange Test Environment
 
         #region Dispose
 
@@ -50,7 +63,7 @@ namespace Domain.Host.Test
                 if (disposing)
                 {
                     this.channel.Dispose();
-                    this.host.Dispose();
+                    this.Host.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
@@ -78,18 +91,39 @@ namespace Domain.Host.Test
         #region Domain Command Path
 
         [Fact]
-        public Task GrpcDomainClient_creates_entity() => base.DomainContract_creates_entity();
+        public async Task GrpcDomainClient_creates_entity()
+        {
+            // ARRANGE
+
+            await this.ArrangeToken();
+
+            // ACT
+
+            await this.domainClient.DomainContract_creates_entity();
+        }
 
         [Fact]
-        public Task GrpcDomainClient_creating_entity_failed_on_null_request()
-            => base.DomainContract_creating_entity_fails_on_null_request();
-
-        private Task<DomainEntityResult> ArrangeDomainEntity()
+        public async Task GrpcDomainClient_creating_entity_failed_on_null_request()
         {
-            return this.DomainContract.CreateEntity(new CreateDomainEntityRequest
-            {
-                Text = "test"
-            });
+            // ARRANGE
+
+            await this.ArrangeToken();
+
+            // ACT
+
+            await this.domainClient.DomainContract_creating_entity_fails_on_null_request();
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_creating_entity_fails_on_missing_token()
+        {
+            // ACT
+
+            var result = await Assert.ThrowsAsync<InvalidOperationException>(() => this.domainClient.DomainContract_creates_entity());
+
+            // ASSERT
+
+            this.AssertUnauthorized(result);
         }
 
         [Fact]
@@ -97,25 +131,54 @@ namespace Domain.Host.Test
         {
             // ARRANGE
 
+            await this.ArrangeToken();
+
             var entity = await this.ArrangeDomainEntity();
 
             // ACT
 
-            await this.DomainContract_updates_entity(entity.Id);
+            await this.domainClient.DomainContract_updates_entity(entity.Id);
         }
 
         [Fact]
         public async Task GrpcDomainClient_updating_entity_fails_on_unknown_id()
         {
+            // ARRANGE
+
+            await this.ArrangeToken();
+
             // ACT
 
-            await this.DomainContract_updating_entity_fails_on_unknown_id();
+            await this.domainClient.DomainContract_updating_entity_fails_on_unknown_id();
         }
 
         [Fact]
         public async Task GrpcDomainClient_updating_entity_fails_on_missing_body()
         {
-            await this.DomainContract_updating_entity_fails_on_missing_body();
+            // ARRANGE
+
+            await this.ArrangeToken();
+
+            // ACT
+
+            await this.domainClient.DomainContract_updating_entity_fails_on_missing_body();
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_updating_entity_fails_on_missing_token()
+        {
+            // ARRANGE
+
+            await this.ArrangeToken();
+
+            var entity = await this.ArrangeDomainEntity();
+
+            this.ArrangeNewTokenProvider();
+            this.ArrangeNewClient();
+
+            // ACT
+
+            var result = Assert.ThrowsAsync<InvalidOperationException>(() => this.domainClient.DomainContract_updates_entity(entity.Id));
         }
 
         [Fact]
@@ -123,16 +186,47 @@ namespace Domain.Host.Test
         {
             // ARRANGE
 
+            await this.ArrangeToken();
+
             var entity = await ArrangeDomainEntity();
 
             // ACT
 
-            await base.DomainContract_deletes_entity_by_id(entity.Id);
+            await this.domainClient.DomainContract_deletes_entity_by_id(entity.Id);
         }
 
         [Fact]
-        public Task GrpcDomainClient_deleting_entity_by_id_returns_false_on_missing_entity()
-          => base.DomainContract_deleting_entity_returns_false_on_missing_entity();
+        public async Task GrpcDomainClient_deleting_entity_by_id_returns_false_on_missing_entity()
+        {
+            // ARRANGE
+
+            await this.ArrangeToken();
+
+            // ARRANGE
+
+            await this.domainClient.DomainContract_deleting_entity_returns_false_on_missing_entity();
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_deleting_entity_by_id_fails_on_missing_token()
+        {
+            // ARRANGE
+
+            await this.ArrangeToken();
+
+            var entity = await ArrangeDomainEntity();
+
+            this.ArrangeNewTokenProvider();
+            this.ArrangeNewClient();
+
+            // ACT
+
+            var result = await Assert.ThrowsAsync<InvalidOperationException>(() => this.domainClient.DomainContract_deletes_entity_by_id(entity.Id));
+
+            // ASSERT
+
+            this.AssertUnauthorized(result);
+        }
 
         #endregion Domain Command Path
 
@@ -143,19 +237,32 @@ namespace Domain.Host.Test
         {
             // ARRANGE
 
+            await this.ArrangeToken();
+
             var entity = await this.ArrangeDomainEntity();
+
+            this.ArrangeNewTokenProvider();
+            this.ArrangeNewClient();
 
             // ACT
 
-            await base.DomainContract_reads_entity_by_id(entity.Id);
+            var result = await Assert.ThrowsAsync<InvalidOperationException>(() => this.domainClient.DomainContract_reads_entity_by_id(entity.Id));
+
+            // ASSERT
+
+            this.AssertUnauthorized(result);
         }
 
         [Fact]
         public async Task GrpcDomainClient_reading_entity_by_id_fails_on_unknown_id()
         {
+            // ARRANGE
+
+            await this.ArrangeToken();
+
             // ACT
 
-            await base.DomainContract_reading_entity_by_id_fails_on_unknown_id();
+            await this.domainClient.DomainContract_reading_entity_by_id_fails_on_unknown_id();
         }
 
         [Fact]
@@ -163,11 +270,32 @@ namespace Domain.Host.Test
         {
             // ARRANGE
 
+            await this.ArrangeToken();
+
             var entity = await this.ArrangeDomainEntity();
 
             // ACT
 
-            await base.DomainContract_reads_entities(entity.Id);
+            await this.domainClient.DomainContract_reads_entities(entity.Id);
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_reading_entities_fails_on_missing_token()
+        {
+            // ARRANGE
+
+            await this.ArrangeToken();
+
+            var entity = await this.ArrangeDomainEntity();
+
+            this.ArrangeNewTokenProvider();
+            this.ArrangeNewClient();
+
+            // ACT
+
+            var result = await Assert.ThrowsAsync<InvalidOperationException>(() => this.domainClient.DomainContract_reads_entities(entity.Id));
+
+            this.AssertUnauthorized(result);
         }
 
         #endregion Domain Query Path
@@ -177,9 +305,23 @@ namespace Domain.Host.Test
         [Fact]
         public async Task GrpcDomainClient_notifies_on_create()
         {
+            // ARRANGE
+
+            await this.ArrangeToken();
+
             // ACT
 
-            await base.DomainContract_notifies_on_create();
+            await this.domainClient.DomainContract_notifies_on_create();
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_notifying_fails_on_missing_token()
+        {
+            // ACT
+
+            var result = await Assert.ThrowsAsync<InvalidOperationException>(() => this.domainClient.DomainContract_notifies_on_create());
+
+            this.AssertUnauthorized(result);
         }
 
         [Fact]
@@ -187,18 +329,8 @@ namespace Domain.Host.Test
         {
             // ARRANGE
 
-            var entity = await this.ArrangeDomainEntity();
+            await this.ArrangeToken();
 
-            await Task.Delay(500);
-
-            // ACT
-
-            await base.DomainContract_notifies_on_delete(entity.Id);
-        }
-
-        [Fact]
-        public async Task GrpcDomainClient_notifies_on_update()
-        {
             // ARRANGE
 
             var entity = await this.ArrangeDomainEntity();
@@ -207,7 +339,25 @@ namespace Domain.Host.Test
 
             // ACT
 
-            await base.DomainContract_notifies_on_update(entity.Id);
+            await this.domainClient.DomainContract_notifies_on_delete(entity.Id);
+        }
+
+        [Fact]
+        public async Task GrpcDomainClient_notifies_on_update()
+        {
+            // ARRANGE
+
+            await this.ArrangeToken();
+
+            // ARRANGE
+
+            var entity = await this.ArrangeDomainEntity();
+
+            await Task.Delay(500);
+
+            // ACT
+
+            await this.domainClient.DomainContract_notifies_on_update(entity.Id);
         }
 
         #endregion Domain Events

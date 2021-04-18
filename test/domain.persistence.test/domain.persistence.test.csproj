@@ -1,18 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5</TargetFramework>
-
+    <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
-
-    <AssemblyName>Domain.Persistence.Test</AssemblyName>
-
-    <RootNamespace>Domain.Persistence.Test</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup Label="FineCodeCoverage">
+    <Enabled>True</Enabled>
+    <Exclude>
+      [Microsoft.*]*
+      [System.*]*
+    </Exclude>
+    <Include>[Domain.*]*</Include>
+    <ExcludeByFile></ExcludeByFile>
+    <ExcludeByAttribute></ExcludeByAttribute>
+    <IncludeTestAssembly>
+      False
+    </IncludeTestAssembly>
+  </PropertyGroup>
+  
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-    <PackageReference Include="System.Linq.Async" Version="4.1.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+    <PackageReference Include="System.Linq.Async" Version="5.0.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>

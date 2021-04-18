@@ -1,5 +1,6 @@
 ﻿using Domain.Contract;
 using Domain.Model;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -9,16 +10,20 @@ namespace Domain.Service
     public class DomainService : IDomainService
     {
         private readonly IDomainModel model;
+        private readonly ILogger<DomainService> logger;
 
-        public DomainService(IDomainModel model)
+        public DomainService(IDomainModel model, ILogger<DomainService> logger)
         {
             this.model = model;
+            this.logger = logger;
         }
 
         public async Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
         {
             if (createDomainEntity is null)
                 throw new ArgumentNullException(nameof(createDomainEntity));
+
+            this.logger.LogDebug("Creating Entity({text})", createDomainEntity.Text);
 
             var entity = createDomainEntity.MapFromRequest();
             await this.model.Entities.Add(entity);
@@ -30,6 +35,8 @@ namespace Domain.Service
                 EventType = DomainEntityEventTypes.Added
             });
 
+            this.logger.LogInformation("Created Entity({text})", createDomainEntity.Text);
+
             return entity.MapToResponse();
         }
 
@@ -37,6 +44,8 @@ namespace Domain.Service
         {
             if (updateDomainEntity is null)
                 throw new ArgumentNullException(nameof(updateDomainEntity));
+
+            this.logger.LogDebug("Updating Entity({id})", id);
 
             var entity = await this.model.Entities.FindById(id);
             if (entity is null)
@@ -52,14 +61,18 @@ namespace Domain.Service
                 EventType = DomainEntityEventTypes.Modified
             });
 
+            this.logger.LogInformation("Created Entity({id},{text})", id, updateDomainEntity.Text);
+
             return entity.MapToResponse();
         }
 
-        public async Task<bool> DeleteEntity(Guid entityId)
+        public async Task<bool> DeleteEntity(Guid id)
         {
-            var entity = await this.model.Entities.FindById(entityId);
+            var entity = await this.model.Entities.FindById(id);
             if (entity is null)
                 return false;
+
+            this.logger.LogDebug("Deleting Entity({id})", id);
 
             this.model.Entities.Delete(entity);
 
@@ -70,6 +83,8 @@ namespace Domain.Service
                 Id = entity.Id,
                 EventType = DomainEntityEventTypes.Deleted
             });
+
+            this.logger.LogInformation("Deleted Entity({id})", id);
 
             return true;
         }

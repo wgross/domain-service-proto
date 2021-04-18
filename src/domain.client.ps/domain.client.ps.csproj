@@ -12,17 +12,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
-    <PackageReference Include="System.Threading.Channels" Version="4.7.1" />
+    <PackageReference Include="System.Threading.Channels" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\domain.client\domain.client.csproj" />
+    <ProjectReference Include="..\Domain.Client.Json\Domain.Client.Json.csproj" />
     <ProjectReference Include="..\domain.contract\domain.contract.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="domain.client.psd1">
+    <None Update="Domain.Client.psd1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,20 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5</TargetFramework>
-
+    <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
+  </PropertyGroup>
 
-    <AssemblyName>Domain.Host.Test</AssemblyName>
-
-    <RootNamespace>Domain.Host.Test</RootNamespace>
+  <PropertyGroup Label="FineCodeCoverage">
+    <Enabled>True</Enabled>
+    <Exclude>
+      [Microsoft.*]*
+      [System.*]*
+    </Exclude>
+    <Include>[Domain.*]*</Include>
+    <ExcludeByFile></ExcludeByFile>
+    <ExcludeByAttribute></ExcludeByAttribute>
+    <IncludeTestAssembly>
+      False
+    </IncludeTestAssembly>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.8" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-    <PackageReference Include="Moq" Version="4.14.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+    <PackageReference Include="Moq" Version="4.15.2" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
@@ -25,12 +34,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\..\src\domain.client.gprc\domain.client.gprc.csproj" />
-    <ProjectReference Include="..\..\src\domain.client\domain.client.csproj" />
+    <ProjectReference Include="..\..\src\Domain.Client.Json\Domain.Client.Json.csproj" />
     <ProjectReference Include="..\..\src\domain.host\domain.host.csproj" />
-    <ProjectReference Include="..\domain.contract.test\domain.contract.test.csproj" />
+    <ProjectReference Include="..\..\submodules\IdentityServer4\src\IdentityServer4\src\IdentityServer4.csproj" />
+    <ProjectReference Include="..\Domain.Contract.Test\Domain.Contract.Test.csproj" />
+    <ProjectReference Include="..\Domain.Host.TestServer\Domain.Host.TestServer.csproj" />
   </ItemGroup>
-
 </Project>

@@ -1,0 +1,4 @@
+[submodule "IdentityShell"]
+	path = submodules/IdentityShell
+	url = https://github.com/wgross/IdentityShell.git
+	branch = develop

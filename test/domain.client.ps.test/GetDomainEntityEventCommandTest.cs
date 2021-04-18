@@ -1,5 +1,4 @@
 using Domain.Contract;
-using Domain.Host.Test;
 using System;
 using System.Linq;
 using System.Management.Automation;
@@ -10,24 +9,16 @@ namespace Domain.Client.PS.Test
 {
     public class GetDomainEntityEventCommandTest : DomainClientCmdletTestBase
     {
-        private readonly DomainServiceTestHost host;
-
-        public GetDomainEntityEventCommandTest()
-        {
-            this.host = new DomainServiceTestHost();
-
-            DomainDependencies.DomainClientFactory = _ => new JsonDomainClient(this.host.CreateClient(), new JsonDomainClientOptions { DomainService = this.host.Server.BaseAddress });
-        }
-
         [Fact]
         public async Task GetDomainEntityEvent_writes_event_to_pipe()
         {
             // ARRANGE
 
-            async Task<DomainEntityResult> ArrangeCreateEntity()
+            this.ArrangeToken();
+
+            async Task<DomainEntityResult> ArrangeDomainEntity()
             {
-                using var client = new JsonDomainClient(this.host.CreateClient(), new JsonDomainClientOptions { DomainService = this.host.Server.BaseAddress });
-                return await client.CreateEntity(new CreateDomainEntityRequest
+                return await DomainClientSession.CurrentDomainClientFactory(this.Host.Server.BaseAddress).CreateEntity(new CreateDomainEntityRequest
                 {
                     Text = "text-1"
                 });
@@ -42,7 +33,7 @@ namespace Domain.Client.PS.Test
                 result = this.PowerShell.AddCommand("Get-DomainEntityEvent").Invoke().ToArray();
             });
 
-            var arrangedEntity = await ArrangeCreateEntity();
+            var arrangedEntity = await ArrangeDomainEntity();
 
             this.PowerShell.Stop();
 

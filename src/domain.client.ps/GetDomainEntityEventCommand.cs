@@ -13,7 +13,7 @@ namespace Domain.Client.PS
     {
         [Parameter]
         [ValidateNotNull()]
-        public Uri DomainService { get; set; } = new Uri("http://localhost:5000");
+        public Uri DomainService { get; set; } = new Uri("http://localhost:6000");
 
         private class DomainEventObserver : IObserver<DomainEntityEvent>
         {
@@ -41,7 +41,7 @@ namespace Domain.Client.PS
         protected override void ProcessRecord()
         {
             // create aclient and start listening to events
-            using var domainClient = DomainDependencies.DomainClientFactory(this.DomainService);
+            using var domainClient = DomainClientSession.CurrentDomainClientFactory(this.DomainService);
             using var subscription = AsyncHelper.RunSync(() => domainClient.Subscribe(new DomainEventObserver(this.domainEventsChannel.Writer)));
 
             do

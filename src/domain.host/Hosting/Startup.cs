@@ -5,12 +5,24 @@ using Domain.Model;
 using Domain.Persistence;
 using Domain.Persistence.EF;
 using Domain.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using NSwag;
+using NSwag.Generation.Processors.Security;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Serilog;
+using Serilog.Formatting.Compact;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Domain.Host
 {
@@ -28,32 +40,97 @@ namespace Domain.Host
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // reconfigure logging from appsettings
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console(
+                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}",
+                    theme: AnsiConsoleTheme.Code)
+                .ReadFrom.Configuration(this.Configuration)
+                .WriteTo.File(new CompactJsonFormatter(), this.Configuration.GetValue<string>("JsonLogPath"))
+                .CreateLogger();
+
+            // open telemetry
+            services.AddOpenTelemetryTracing(
+                builder =>
+                {
+                    builder
+                        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(this.Environment.ApplicationName))
+                        .AddAspNetCoreInstrumentation()
+                        .AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Console);
+                });
+
             // domain model and persistence
             services.AddScoped<IDomainModel, DomainModel>();
             services.AddScoped<IDomainService, DomainService>();
-            services.AddDbContext<DomainDbContext>(opts => opts.UseSqlite(this.Configuration.GetConnectionString("DomainDatabase")));
+
+            this.ConfigureDbContext(services);
 
             // web api
-            services.AddControllers();
+            services
+                .AddControllers()
+                // Add Controllers from this assembly explcitely bacause during test the test assembly would be
+                // searched for Controllers without success
+                .AddApplicationPart(typeof(Startup).Assembly);
+
             services.AddHostedService<MigrateDatabaseService>();
 
-            // open api
-            services.AddSwaggerDocument();
+            this.ConfigureAuthenticationServices(services);
+
+            // open api documentaion
+            services.AddSwaggerDocument(document =>
+            {
+                // API accepts a JWT bearer token
+                document.AddSecurity("JWT", new OpenApiSecurityScheme
+                {
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Name = "Authorization", // header name
+                    In = NSwag.OpenApiSecurityApiKeyLocation.Header,
+                    Description = "OpenId Jwt with prefix 'Bearer'"
+                });
+                document.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
+            });
 
             // grpc
             services.AddGrpc();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        virtual protected void ConfigureDbContext(IServiceCollection services)
         {
-            if (env.IsDevelopment())
+            services.AddDbContext<DomainDbContext>(opts => opts.UseSqlite(this.Configuration.GetConnectionString("DomainDatabase")));
+        }
+
+        virtual protected void ConfigureAuthenticationServices(IServiceCollection services)
+        {
+            // web api authorization with open id bearer tokens
+            services
+                .AddAuthentication(configureOptions: c =>
+                {
+                    // while http runs nicely without specifiying these schemes explitely
+                    // Grpc fails to authorize the call w/o them.
+                    c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    c.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, configureOptions: c =>
+                {
+                    c.Authority = Configuration["Endpoints:Authority"]; // points to IdentityShells
+                    c.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateAudience = false
+                    };
+                });
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostApplicationLifetime appLifeTime)
+        {
+            if (this.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
             // allow requests from domain.ui
-            // if this fails move up in configuration order
+            // (if this fails move up in configuration order)
             app.UseCors(policy => policy
                .AllowAnyOrigin()//.WithOrigins("http://localhost:6000", "https://localhost:6001")
                .AllowAnyMethod()
@@ -61,10 +138,27 @@ namespace Domain.Host
 
             // web api
             app.UseRouting();
+
+            // enable authentication and authorization middleware
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            // add routing middleware and enpoints of controllers and GRPC
             app.UseEndpoints(c =>
             {
-                // web api
-                c.MapControllers();
+                if (this.Configuration.GetValue<bool>("Authorization:Disable"))
+                {
+                    // web api allowing anonymous access to all controllers
+                    c.MapControllers().WithMetadata(new AllowAnonymousAttribute());
+                }
+                else
+                {
+                    // web api allowing authorized access only
+                    c.MapControllers().WithMetadata(new AuthorizeAttribute()
+                    {
+                        AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme
+                    });
+                }
 
                 // grpc
                 c.MapGrpcService<GrpcDomainService>();
@@ -73,6 +167,13 @@ namespace Domain.Host
             // open api
             app.UseOpenApi();
             app.UseSwaggerUi3();
+
+            // Register a delegate for graceful shutdown
+            appLifeTime.ApplicationStopping.Register(this.OnShuttingDown);
+        }
+
+        protected virtual void OnShuttingDown()
+        {
         }
     }
 }

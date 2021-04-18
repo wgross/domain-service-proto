@@ -1,5 +1,4 @@
 ﻿using Domain.Contract;
-using Domain.Host.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Text.Json;
@@ -42,7 +41,7 @@ namespace Domain.Host.Controllers
 
                 WaitHandle.WaitAll(new[] { cancelled.WaitHandle });
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 // collection was completed
                 //this.domainEventSubscription.Dispose();

@@ -1,25 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5</TargetFramework>
-
+    <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
-
-    <AssemblyName>Domain.Client.PS.Test</AssemblyName>
-
-    <RootNamespace>Domain.Client.PS.Test</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="..\domain.host.test\DomainServiceTestHost.cs" Link="Links\DomainServiceTestHost.cs" />
-  </ItemGroup>
-
+  <PropertyGroup Label="FineCodeCoverage">
+    <Enabled>True</Enabled>
+    <Exclude>
+      [Microsoft.*]*
+      [System.*]*
+    </Exclude>
+    <Include>[Domain.*]*</Include>
+    <ExcludeByFile></ExcludeByFile>
+    <ExcludeByAttribute></ExcludeByAttribute>
+    <IncludeTestAssembly>
+      False
+    </IncludeTestAssembly>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.8" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.3" />
-    <PackageReference Include="Moq" Version="4.14.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.1.0" />
+    <PackageReference Include="Moq" Version="4.15.2" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
@@ -34,6 +39,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\domain.client.ps\domain.client.ps.csproj" />
     <ProjectReference Include="..\..\src\domain.host\domain.host.csproj" />
+    <ProjectReference Include="..\Domain.Host.TestServer\Domain.Host.TestServer.csproj" />
   </ItemGroup>
 
 </Project>

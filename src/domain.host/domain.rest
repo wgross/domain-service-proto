@@ -1,4 +1,4 @@
-POST http://localhost:5000/domain
+POST http://localhost:6000/domain
 Content-Type: application/json
 
 {

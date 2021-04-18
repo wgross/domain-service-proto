@@ -1,5 +1,6 @@
 using Domain.Contract.Test;
 using Domain.Model;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Domain.Service.Test
 {
     [Collection(nameof(DomainService))]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1063:Implement IDisposable Correctly", Justification = "<Pending>")]
-    public class DomainServiceTest : DomainServiceContractTestBase, IDisposable
+    public class DomainServiceTest : IDisposable
     {
         private MockRepository Mocks { get; } = new MockRepository(MockBehavior.Strict);
 
@@ -19,11 +20,13 @@ namespace Domain.Service.Test
 
         private Mock<IDomainEntityRepository> DomainEntityRepositoryMock { get; }
 
+        private readonly DomainService domainService;
+
         public DomainServiceTest()
         {
             this.DomainModelMock = this.Mocks.Create<IDomainModel>();
             this.DomainEntityRepositoryMock = this.Mocks.Create<IDomainEntityRepository>();
-            this.DomainContract = new DomainService(this.DomainModelMock.Object);
+            this.domainService = new DomainService(this.DomainModelMock.Object, Mock.Of<ILogger<DomainService>>());
         }
 
         public void Dispose() => this.Mocks.VerifyAll();
@@ -31,13 +34,13 @@ namespace Domain.Service.Test
         #region Domain Command Path
 
         [Fact]
-        public Task DomainService_does_something() => base.DomainContract_does_something();
+        public Task DomainService_does_something() => this.domainService.DomainContract_does_something();
 
         [Fact]
-        public Task DomainService_doing_someting_fails_on_missing_body() => base.DomainContract_doing_someting_fails_on_missing_body();
+        public Task DomainService_doing_someting_fails_on_missing_body() => this.domainService.DomainContract_doing_someting_fails_on_missing_body();
 
         [Fact]
-        public Task DomainService_doing_something_fails_on_bad_input() => base.DomainContract_doing_something_fails_on_bad_input();
+        public Task DomainService_doing_something_fails_on_bad_input() => this.domainService.DomainContract_doing_something_fails_on_bad_input();
 
         [Fact]
         public async Task DomainService_creates_entity()
@@ -59,13 +62,13 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await base.DomainContract_creates_entity();
+            await this.domainService.DomainContract_creates_entity();
         }
 
         [Fact]
         public async Task DomainService_creating_entity_fails_on_null_request()
         {
-            await this.DomainContract_creating_entity_fails_on_null_request();
+            await this.domainService.DomainContract_creating_entity_fails_on_null_request();
         }
 
         [Fact]
@@ -85,13 +88,13 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await this.DomainContract_updating_entity_fails_on_unknown_id();
+            await this.domainService.DomainContract_updating_entity_fails_on_unknown_id();
         }
 
         [Fact]
         public async Task DomainService_updating_entity_fails_on_missing_body()
         {
-            await this.DomainContract_updating_entity_fails_on_missing_body();
+            await this.domainService.DomainContract_updating_entity_fails_on_missing_body();
         }
 
         [Fact]
@@ -115,7 +118,7 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await this.DomainContract_updates_entity(entity.Id);
+            await this.domainService.DomainContract_updates_entity(entity.Id);
         }
 
         [Fact]
@@ -140,7 +143,7 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await base.DomainContract_deletes_entity_by_id(entity.Id);
+            await this.domainService.DomainContract_deletes_entity_by_id(entity.Id);
         }
 
         [Fact]
@@ -158,7 +161,7 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await base.DomainContract_deleting_entity_returns_false_on_missing_entity();
+            await this.domainService.DomainContract_deleting_entity_returns_false_on_missing_entity();
         }
 
         #endregion Domain Command Path
@@ -180,7 +183,7 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await base.DomainContract_reads_entity_by_id(entity.Id);
+            await this.domainService.DomainContract_reads_entity_by_id(entity.Id);
         }
 
         [Fact]
@@ -198,7 +201,7 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await base.DomainContract_reading_entity_by_id_fails_on_unknown_id();
+            await this.domainService.DomainContract_reading_entity_by_id_fails_on_unknown_id();
         }
 
         [Fact]
@@ -218,7 +221,7 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await base.DomainContract_reads_entities(entities.Single().Id);
+            await this.domainService.DomainContract_reads_entities(entities.Single().Id);
         }
 
         #endregion Domain Query Path
@@ -244,7 +247,7 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await base.DomainContract_notifies_on_create();
+            await this.domainService.DomainContract_notifies_on_create();
         }
 
         [Fact]
@@ -269,7 +272,7 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await base.DomainContract_notifies_on_delete(entity.Id);
+            await this.domainService.DomainContract_notifies_on_delete(entity.Id);
         }
 
         [Fact]
@@ -291,7 +294,7 @@ namespace Domain.Service.Test
 
             // ACT
 
-            await base.DomainContract_notifies_on_update(entity.Id);
+            await this.domainService.DomainContract_notifies_on_update(entity.Id);
         }
 
         #endregion Domain Events

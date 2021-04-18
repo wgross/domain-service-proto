@@ -1,9 +1,9 @@
-﻿using Domain.Contract;
+﻿using Domain.Client.Authorization;
+using Domain.Contract;
 using Domain.Contract.Proto;
 using Grpc.Core;
 using Grpc.Net.Client;
 using System;
-using System.Net.Http;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,46 +11,64 @@ using static Domain.Contract.Proto.GDomainService;
 
 namespace Domain.Client.Gprc
 {
+    /// <summary>
+    /// Implements the GRPC client of the domian service.
+    /// </summary>
     public class GrpcDomainClient : GDomainServiceClient, IDomainService
     {
-        private HttpClient httpClient;
+        private IDomainClientTokenProvider tokenProvider;
 
-        public GrpcDomainClient(GrpcChannel channel)
+        public GrpcDomainClient(GrpcChannel channel, IDomainClientTokenProvider tokenProvider)
             : base(channel)
-        { }
+        {
+            this.tokenProvider = tokenProvider;
+        }
 
+        internal Metadata GetMetadata()
+        {
+            var headers = new Metadata();
+            headers.Add("Authorization", $"Bearer {this.tokenProvider.GetToken()}");
+            return headers;
+        }
+
+        /// <inheritdoc/>
         public async Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
         {
             if (createDomainEntity is null)
                 throw new ArgumentNullException(nameof(createDomainEntity));
 
-            return (await base.CreateAsync(createDomainEntity.ToGrpcMessage())).FromGrpcMessage();
+            return (await base.CreateAsync(createDomainEntity.ToGrpcMessage(), this.GetMetadata())).FromGrpcMessage();
         }
 
+        /// <inheritdoc/>
         public async Task<bool> DeleteEntity(Guid entityId)
         {
-            return (await base.DeleteAsync(new GrpcDeleteDomainEntityRequest
-            {
-                Id = entityId.ToString()
-            }))
-            .FromGrpcMessage();
+            return (await base.DeleteAsync(
+                request: new GrpcDeleteDomainEntityRequest
+                {
+                    Id = entityId.ToString()
+                },
+                headers: this.GetMetadata())).FromGrpcMessage();
         }
 
+        /// <inheritdoc/>
         public Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         public async Task<DomainEntityCollectionResult> GetEntities()
         {
-            return (await base.GetAllAsync(new GrpcGetAllDomainEntitiesRequest())).FromGrpcMessage();
+            return (await base.GetAllAsync(new GrpcGetAllDomainEntitiesRequest(), this.GetMetadata())).FromGrpcMessage();
         }
 
+        /// <inheritdoc/>
         public async Task<DomainEntityResult> GetEntity(Guid id)
         {
             try
             {
-                return (await base.GetAsync(new GrpcGetDomainEntityByIdRequest { Id = id.ToString() })).FromGrpcMessage();
+                return (await base.GetAsync(new GrpcGetDomainEntityByIdRequest { Id = id.ToString() }, this.GetMetadata())).FromGrpcMessage();
             }
             catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
             {
@@ -58,6 +76,7 @@ namespace Domain.Client.Gprc
             }
         }
 
+        /// <inheritdoc/>
         public async Task<DomainEntityResult> UpdateEntity(Guid id, UpdateDomainEntityRequest updateDomainEntity)
         {
             if (updateDomainEntity is null)
@@ -65,7 +84,7 @@ namespace Domain.Client.Gprc
 
             try
             {
-                return (await base.UpdateAsync(updateDomainEntity.ToGrpcMessage(id))).FromGrpcMessage();
+                return (await base.UpdateAsync(updateDomainEntity.ToGrpcMessage(id), this.GetMetadata())).FromGrpcMessage();
             }
             catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
             {
@@ -86,7 +105,7 @@ namespace Domain.Client.Gprc
                 this.grpcClient = grpcClient;
             }
 
-            internal async Task SubscribeAndListen(IObserver<DomainEntityEvent> observer)
+            internal async Task SubscribeAndListen(IObserver<DomainEntityEvent> observer, Metadata metadata)
             {
                 // the background thread will run until the cancellation breaks it.
                 await Task
@@ -98,7 +117,7 @@ namespace Domain.Client.Gprc
                         try
                         {
                             // start the call and forward incoming domain events to the observer
-                            using var streamingCall = this.grpcClient.Subscribe(new GrpcSubscribeDomainEvent(), cancellationToken: this.cancelListening.Token);
+                            using var streamingCall = this.grpcClient.Subscribe(new GrpcSubscribeDomainEvent(), metadata, cancellationToken: this.cancelListening.Token);
 
                             while (await streamingCall.ResponseStream.MoveNext() && !this.cancelListening.IsCancellationRequested)
                             {
@@ -117,6 +136,7 @@ namespace Domain.Client.Gprc
             public void Dispose()
             {
                 this.cancelListening.Cancel();
+                this.grpcClient = null;
             }
         }
 
@@ -126,7 +146,7 @@ namespace Domain.Client.Gprc
         {
             var tmp = new DomainEventReceiver(this);
 
-            tmp.SubscribeAndListen(observer);
+            tmp.SubscribeAndListen(observer, this.GetMetadata());
             return Task.FromResult((IDisposable)tmp);
         }
 

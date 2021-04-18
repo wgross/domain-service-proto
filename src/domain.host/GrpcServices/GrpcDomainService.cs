@@ -1,6 +1,7 @@
 ﻿using Domain.Contract;
 using Domain.Contract.Proto;
 using Grpc.Core;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using static Domain.Contract.Proto.GDomainService;
 
 namespace Domain.Host.GrpcServices
 {
+    [Authorize]
     public class GrpcDomainService : GDomainServiceBase, IObserver<DomainEntityEvent>
     {
         private readonly IDomainService domainService;
