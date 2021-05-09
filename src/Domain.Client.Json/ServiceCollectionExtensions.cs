@@ -7,7 +7,7 @@ namespace Domain.Client.Json
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddJsonDomainServiceClient(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddJsonDomainServiceClient(this IServiceCollection services, IConfiguration configuration = null)
         {
             services.Configure<JsonDomainClientOptions>(configuration.GetSection(JsonDomainClientOptions.SectionName));
             services.AddHttpClient<IDomainService, JsonDomainClient>().AddHttpMessageHandler<DomainClientAuthorizingHandler>();

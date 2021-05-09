@@ -10,7 +10,6 @@
   "profiles": {
     "host": {
       "commandName": "Project",
-      "commandLineArgs": "\"Authorization:Disable\"=true",
       "launchBrowser": true,
       "launchUrl": "/swagger",
       "environmentVariables": {

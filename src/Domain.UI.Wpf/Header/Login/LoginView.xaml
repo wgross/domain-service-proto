@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="Domain.UI.Wpf.Header.Login.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:common="clr-namespace:Domain.UI.Wpf.Common"
+             mc:Ignorable="d"
+             d:DesignHeight="30" d:DesignWidth="200">
+    <Grid>
+        <Grid.Resources>
+            <common:BoolToVisibilityConverter x:Key="trueIsVisible" TrueIsVisible="true" />
+            <common:BoolToVisibilityConverter x:Key="falseIsVisible" TrueIsVisible="false" />
+            <Style TargetType="{x:Type Button}">
+                <Setter Property="Margin" Value="3,0,3,0" />
+                <Setter Property="MinWidth" Value="50" />
+            </Style>
+            <Style TargetType="{x:Type TextBox}">
+                <Setter Property="Margin" Value="3,0,3,0" />
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="MinWidth" Value="50" />
+            </Style>
+        </Grid.Resources>
+
+        <StackPanel
+            Visibility="{Binding IsLoggedIn, Mode=OneWay, Converter={StaticResource trueIsVisible}}"
+            Orientation="Horizontal">
+            <TextBlock Text="{Binding Username}" />
+            <Button Content="Logout" Command="{Binding LogoutCommand}" />
+        </StackPanel>
+
+        <StackPanel
+            Visibility="{Binding IsLoggedIn, Mode=OneWay,  Converter={StaticResource falseIsVisible}}"
+            Orientation="Horizontal">
+            <Label Content="_Username" Target="{Binding ElementName=userNameTextBox}" />
+            <TextBox Name="userNameTextBox" Text="{Binding Username}"/>
+            <Label Content="_Password" Target="{Binding ElementName=passwordTextBox}" />
+            <!--
+            Password box doesn support binding
+            http://blog.functionalfun.net/2008/06/wpf-passwordbox-and-data-binding.html
+            <PasswordBox Name="passwordTextBox" />
+            -->
+            <TextBox Name="passwordTextBox" Text="{Binding Password}"  />
+            <Button Content="Login" Command="{Binding LoginCommand}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

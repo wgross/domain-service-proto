@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Domain.Host.Controllers
 {
     [Route("domain")]
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public sealed class DomainController : ControllerBase
     {
         private readonly IDomainService domainService;

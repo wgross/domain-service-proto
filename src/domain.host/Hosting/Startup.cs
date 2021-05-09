@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 using OpenTelemetry.Exporter;
@@ -104,24 +103,17 @@ namespace Domain.Host
         {
             // web api authorization with open id bearer tokens
             services
-                .AddAuthentication(configureOptions: c =>
+                .AddSingleton<LoggingJwtBearerEvents>()
+                // while http runs nicely without specifiying these schemes explicitely grpc fails to authorize the call w/o them.
+                .AddAuthentication(configureOptions: opts => this.Configuration.Bind("Authentication", opts))
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opts =>
                 {
-                    // while http runs nicely without specifiying these schemes explitely
-                    // Grpc fails to authorize the call w/o them.
-                    c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    c.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, configureOptions: c =>
-                {
-                    c.Authority = Configuration["Endpoints:Authority"]; // points to IdentityShells
-                    c.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateAudience = false
-                    };
+                    this.Configuration.Bind("Authentication:Bearer", opts);
+                    opts.EventsType = typeof(LoggingJwtBearerEvents);
                 });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.1
         public void Configure(IApplicationBuilder app, IHostApplicationLifetime appLifeTime)
         {
             if (this.Environment.IsDevelopment())
@@ -146,21 +138,7 @@ namespace Domain.Host
             // add routing middleware and enpoints of controllers and GRPC
             app.UseEndpoints(c =>
             {
-                if (this.Configuration.GetValue<bool>("Authorization:Disable"))
-                {
-                    // web api allowing anonymous access to all controllers
-                    c.MapControllers().WithMetadata(new AllowAnonymousAttribute());
-                }
-                else
-                {
-                    // web api allowing authorized access only
-                    c.MapControllers().WithMetadata(new AuthorizeAttribute()
-                    {
-                        AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme
-                    });
-                }
-
-                // grpc
+                c.MapControllers();
                 c.MapGrpcService<GrpcDomainService>();
             });
 

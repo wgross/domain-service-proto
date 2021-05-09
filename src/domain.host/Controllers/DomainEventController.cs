@@ -14,10 +14,9 @@ namespace Domain.Host.Controllers
         private readonly IDomainService service;
         private readonly Channel<DomainEntityEvent> eventChannel = Channel.CreateUnbounded<DomainEntityEvent>();
 
-        private IDisposable domainEventSubscription;
         private readonly byte[] newLineBytes;
         private readonly JsonSerializerOptions jsonSerializerOptions;
-
+        
         public DomainEventController(IDomainService service)
         {
             this.newLineBytes = System.Text.Encoding.Default.GetBytes(Environment.NewLine.ToCharArray());

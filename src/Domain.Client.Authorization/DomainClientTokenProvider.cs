@@ -40,6 +40,6 @@ namespace Domain.Client.Authorization
             }
         }
 
-        public string GetToken() => this.clientCredentials?.AccessToken ?? throw new InvalidOperationException("Token hasn't been fetched");
+        public string GetAccessToken() => this.clientCredentials?.AccessToken ?? throw new InvalidOperationException("Token hasn't been fetched");
     }
 }

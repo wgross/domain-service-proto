@@ -2,9 +2,9 @@ fs-dirs\Invoke-AtContainer -Path "$PSScriptRoot\submodules\IdentityShell\src\Ide
     
     $publish = $true
 
-    if("$PWD\bin\debug\netcoreapp3.1\publish"|Test-Path) {
+    if("$PWD\bin\debug\net5.0\publish"|Test-Path) {
         # get the last time the project was published
-        $maxPublishTime = (fs-files\Get-ItemModification -Path "$PWD\bin\debug\netcoreapp3.1\publish").MaxLastWriteTime
+        $maxPublishTime = (fs-files\Get-ItemModification -Path "$PWD\bin\debug\net5.0\publish").MaxLastWriteTime
         $maxModificationTime = (fs-files\Get-ItemModification -Path $PWD).MaxLastWriteTime
         $publish = $maxModificationTime -gt $maxPublishTime
     } 
@@ -15,5 +15,5 @@ fs-dirs\Invoke-AtContainer -Path "$PSScriptRoot\submodules\IdentityShell\src\Ide
     }
 
     # and run the published IdentitiyShell
-    Start-Process -FilePath "$PWD\bin\debug\netcoreapp3.1\publish\IdentityShell.exe"
+    Start-Process -FilePath "$PWD\bin\debug\net5.0\publish\IdentityShell.exe" -ArgumentList @("--urls=`"https://localhost:7777`"")
 }

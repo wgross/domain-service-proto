@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Service
 {
+    /// <inheritdoc/>
     public class DomainService : IDomainService
     {
         private readonly IDomainModel model;
@@ -18,6 +19,7 @@ namespace Domain.Service
             this.logger = logger;
         }
 
+        /// <inheritdoc/>
         public async Task<DomainEntityResult> CreateEntity(CreateDomainEntityRequest createDomainEntity)
         {
             if (createDomainEntity is null)
@@ -35,11 +37,12 @@ namespace Domain.Service
                 EventType = DomainEntityEventTypes.Added
             });
 
-            this.logger.LogInformation("Created Entity({text})", createDomainEntity.Text);
+            Log.DomainEntityCreated(this.logger, createDomainEntity.Text, null);
 
             return entity.MapToResponse();
         }
 
+        /// <inheritdoc/>
         public async Task<DomainEntityResult> UpdateEntity(Guid id, UpdateDomainEntityRequest updateDomainEntity)
         {
             if (updateDomainEntity is null)
@@ -61,11 +64,12 @@ namespace Domain.Service
                 EventType = DomainEntityEventTypes.Modified
             });
 
-            this.logger.LogInformation("Created Entity({id},{text})", id, updateDomainEntity.Text);
+            Log.DomainEntityUpdated(this.logger, entity.Id, entity.Text, null);
 
             return entity.MapToResponse();
         }
 
+        /// <inheritdoc/>
         public async Task<bool> DeleteEntity(Guid id)
         {
             var entity = await this.model.Entities.FindById(id);
@@ -84,11 +88,12 @@ namespace Domain.Service
                 EventType = DomainEntityEventTypes.Deleted
             });
 
-            this.logger.LogInformation("Deleted Entity({id})", id);
+            Log.DomainEntityDeleted(this.logger, entity.Id, null);
 
             return true;
         }
 
+        /// <inheritdoc/>
         public Task<DoSomethingResult> DoSomething(DoSomethingRequest rq)
         {
             if (rq is null)
@@ -100,11 +105,13 @@ namespace Domain.Service
             return Task.FromResult(new DoSomethingResult());
         }
 
+        /// <inheritdoc/>
         public Task<DomainEntityCollectionResult> GetEntities()
         {
             return this.model.Entities.Query().MapToResponse();
         }
 
+        /// <inheritdoc/>
         public async Task<DomainEntityResult> GetEntity(Guid id)
         {
             var entity = await this.model.Entities.FindById(id);
@@ -133,5 +140,31 @@ namespace Domain.Service
         }
 
         #endregion Domain Events
+
+        #region Prepared log events
+
+        private class Log
+        {
+            public static readonly EventId Created = new EventId(100, nameof(Created));
+            public static readonly EventId Updated = new EventId(101, nameof(Updated));
+            public static readonly EventId Deleted = new EventId(102, nameof(Deleted));
+
+            public static Action<ILogger, string, Exception> DomainEntityCreated = LoggerMessage.Define<string>(
+                logLevel: LogLevel.Information,
+                eventId: Created,
+                formatString: "Created DomainEntity(text={text})");
+
+            public static Action<ILogger, Guid, string, Exception> DomainEntityUpdated = LoggerMessage.Define<Guid, string>(
+                 logLevel: LogLevel.Information,
+                 eventId: Updated,
+                 formatString: "Updated DomainEntity(id={id},text={text})");
+
+            public static Action<ILogger, Guid, Exception> DomainEntityDeleted = LoggerMessage.Define<Guid>(
+                logLevel: LogLevel.Information,
+                eventId: Deleted,
+                formatString: "Deleted DomainEntity(id={id})");
+        }
+
+        #endregion Prepared log events
     }
 }

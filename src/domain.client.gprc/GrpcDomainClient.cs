@@ -27,7 +27,7 @@ namespace Domain.Client.Gprc
         internal Metadata GetMetadata()
         {
             var headers = new Metadata();
-            headers.Add("Authorization", $"Bearer {this.tokenProvider.GetToken()}");
+            headers.Add("Authorization", $"Bearer {this.tokenProvider.GetAccessToken()}");
             return headers;
         }
 

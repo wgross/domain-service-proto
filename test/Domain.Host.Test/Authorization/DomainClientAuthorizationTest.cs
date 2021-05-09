@@ -23,7 +23,7 @@ namespace Domain.Host.Test.Authorization
 
             // ASSERT
 
-            Assert.False(string.IsNullOrEmpty(this.tokenProvider.GetToken()));
+            Assert.False(string.IsNullOrEmpty(this.tokenProvider.GetAccessToken()));
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace Domain.Host.Test.Authorization
         {
             // ACT
 
-            var result = Assert.Throws<InvalidOperationException>(() => this.tokenProvider.GetToken());
+            var result = Assert.Throws<InvalidOperationException>(() => this.tokenProvider.GetAccessToken());
 
             // ASSERT
 

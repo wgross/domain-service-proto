@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 namespace Domain.Client.Authorization
 {
     /// <summary>
-    /// Uses the <see cref="IDomainClientTokenProvider"/> to add a bearer token to the outgoing request.
+    /// Uses the <see cref="ITokenProvider"/> to add a bearer token to the outgoing request.
     /// This allows the code of <see cref="JsonDomainClient"/> to be free of the clutter of authorization code
     /// </summary>
     public class DomainClientAuthorizingHandler : DelegatingHandler
     {
-        private readonly IDomainClientTokenProvider tokenProvider;
+        private readonly ITokenProvider tokenProvider;
 
-        public DomainClientAuthorizingHandler(IDomainClientTokenProvider tokenProvider) : base()
+        public DomainClientAuthorizingHandler(ITokenProvider tokenProvider) : base()
         {
             this.tokenProvider = tokenProvider;
         }
@@ -27,7 +27,7 @@ namespace Domain.Client.Authorization
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // Add bearer token if avaliable
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", this.tokenProvider.GetToken());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", this.tokenProvider.GetAccessToken());
 
             var response = await base.SendAsync(request, cancellationToken);
 
