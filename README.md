@@ -1,5 +1,7 @@
 # domain-service-proto is a sandbox project to explore implementation patterns of a web service world
 
+## Implementation Patterns
+
 The center of this sandbox project is a minimal domain service providing CRUD operations to a single entity.
 Starting there I'm exploring opinions and assumptions how to structure the code best to achieve non-functional goals like testability.
 Also the service is surrounded by other software components like user interfaces or services.
@@ -28,12 +30,21 @@ To make sure the messaging between client and server still follows general HTTP 
 
 Also an OpenId description and a swagger UI is provided by the service.
 
+## Operation Goals
+
 **Design Goal 5: A powershell client should be available allowing to interact with the service for inspection or automation scenarios**
 
 A powershell client is helpful in scenarios for test, maintenance and enterprise integration.
 The powershell already provides commands to interact with web services like Invoke-RestMethod which will relay already to the standard conform HTTP behavior described in design goal 4.
 This project will provide such a client including tests.
 
+
 **Design Goal 6: Behavior of all components should be observable with logfile wich is easily queriable**
 
 Logging done using structured logging which creates JSON formatted log files.
+
+**Design Goal 7: Access to domain service requires authenticationa and authorization**
+
+The domain service requires and Bearer access token, clients authentication at an OpenId Connect services.
+
+

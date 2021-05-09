@@ -6,7 +6,6 @@ using Domain.Persistence;
 using Domain.Persistence.EF;
 using Domain.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +57,9 @@ namespace Domain.Host
                         .AddAspNetCoreInstrumentation()
                         .AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Console);
                 });
+
+            // health checks for service and DbContext
+            services.AddHealthChecks().AddDbContextCheck<DomainDbContext>();
 
             // domain model and persistence
             services.AddScoped<IDomainModel, DomainModel>();
@@ -140,6 +142,7 @@ namespace Domain.Host
             {
                 c.MapControllers();
                 c.MapGrpcService<GrpcDomainService>();
+                c.MapHealthChecks("/health");
             });
 
             // open api
